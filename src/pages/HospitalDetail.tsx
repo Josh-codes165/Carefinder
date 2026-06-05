@@ -1,13 +1,18 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { fetchHospitalById } from "../lib/hospitals";
+import { fetchHospitalById, fetchHospitalReviews } from "../lib/hospitals";
+import type { Review } from "../lib/hospitals";
 import ExportModal from "../Components/ExportModal";
+import StarRating from "../Components/StarRating";
+import WriteReview from "../Components/WriteReview";
 
 function HospitalDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+
 
   const {
     data: hospital,
@@ -19,6 +24,14 @@ function HospitalDetail() {
     enabled: !!id,
   });
 
+  // ADD THIS RIGHT HERE — before the if statements
+  const { data: reviews } = useQuery({
+    queryKey: ["reviews", id],
+    queryFn: () => fetchHospitalReviews(id!),
+    enabled: !!id,
+  });
+
+  // Early returns come AFTER all hooks
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#F6F5F0] flex items-center justify-center">
@@ -26,6 +39,7 @@ function HospitalDetail() {
       </div>
     );
   }
+
   if (error || !hospital) {
     return (
       <div className="min-h-screen bg-[#F6F5F0] flex items-center justify-center">
@@ -43,6 +57,7 @@ function HospitalDetail() {
   }
   return (
     <div className="min-h-screen bg-[#F6F5F0]">
+      {/* Top nav */}
       <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-4">
         <span className="text-[#0F6E56] font-semibold text-base">
           Carefinder
@@ -55,6 +70,7 @@ function HospitalDetail() {
         </button>
       </div>
 
+      {/* Hero */}
       <div className="bg-gradient-to-r from-[#0F6E56] to-[#1D9E75] px-6 py-8 relative">
         <div>
           <h1 className="text-xl font-semibold text-white">{hospital.name}</h1>
@@ -67,8 +83,11 @@ function HospitalDetail() {
         </span>
       </div>
 
+      {/* Two column body */}
       <div className="flex flex-col lg:flex-row gap-0 max-w-6xl mx-auto">
+        {/* Left column */}
         <div className="flex-1 p-6 border-r border-gray-100">
+          {/* Specialties */}
           <section className="mb-6">
             <h2 className="text-sm font-medium text-[#1A1A18] mb-3">
               Specialties
@@ -88,6 +107,7 @@ function HospitalDetail() {
             </div>
           </section>
 
+          {/* About */}
           {hospital.description && (
             <section className="mb-6">
               <h2 className="text-sm font-medium text-[#1A1A18] mb-3">About</h2>
@@ -97,6 +117,7 @@ function HospitalDetail() {
             </section>
           )}
 
+          {/* Visiting hours */}
           {hospital.visiting_hours && (
             <section className="mb-6">
               <h2 className="text-sm font-medium text-[#1A1A18] mb-3">
@@ -110,36 +131,121 @@ function HospitalDetail() {
             </section>
           )}
 
+          {/* Ratings and reviews */}
           <section>
-            <h2 className="text-sm font-medium text-[#1A1A18] mb-3">Rating</h2>
-            <div className="flex items-center gap-3">
-              <span className="text-4xl font-semibold text-[#1A1A18]">
-                {hospital.avg_rating.toFixed(1)}
-              </span>
-              <div>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      className={
-                        star <= Math.round(hospital.avg_rating)
-                          ? "text-[#EF9F27]"
-                          : "text-gray-200"
-                      }
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-medium text-[#1A1A18]">
+                Ratings & reviews
+              </h2>
+              {!showReviewForm && (
+                <button
+                  onClick={() => setShowReviewForm(true)}
+                  className="text-sm text-[#0F6E56] font-medium border border-[#5DCAA5] px-4 py-1.5 rounded-lg hover:bg-[#E1F5EE] transition-colors"
+                >
+                  ✏️ Write a review
+                </button>
+              )}
+            </div>
+
+            {/* Rating summary */}
+            <div className="flex items-center gap-4 bg-[#F1EFE8] rounded-xl p-4 mb-5">
+              <div className="text-center">
+                <p className="text-4xl font-semibold text-[#1A1A18]">
+                  {hospital.avg_rating.toFixed(1)}
+                </p>
+                <StarRating
+                  rating={Math.round(hospital.avg_rating)}
+                  size="sm"
+                />
                 <p className="text-xs text-[#888780] mt-1">
                   {hospital.review_count} review
                   {hospital.review_count !== 1 ? "s" : ""}
                 </p>
               </div>
+
+              {/* Rating bars */}
+              <div className="flex-1">
+                {[5, 4, 3, 2, 1].map((star) => {
+                  const count =
+                    reviews?.filter((r) => r.rating === star).length ?? 0;
+                  const total = reviews?.length ?? 1;
+                  const percent = total > 0 ? (count / total) * 100 : 0;
+                  return (
+                    <div key={star} className="flex items-center gap-2 mb-1">
+                      <span className="text-xs text-[#888780] w-2">{star}</span>
+                      <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#EF9F27] rounded-full transition-all"
+                          style={{ width: `${percent}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
+
+            {/* Write review form */}
+            {showReviewForm && (
+              <div className="mb-5">
+                <WriteReview
+                  hospitalId={hospital.id}
+                  onClose={() => setShowReviewForm(false)}
+                />
+              </div>
+            )}
+
+            {/* Reviews list */}
+            {reviews && reviews.length > 0 ? (
+              <div className="flex flex-col gap-3">
+                {reviews.map((review: Review) => (
+                  <div
+                    key={review.id}
+                    className="bg-white border border-gray-100 rounded-xl p-4"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-[#E1F5EE] flex items-center justify-center text-xs font-semibold text-[#0F6E56]">
+                          U
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-[#1A1A18]">
+                            Verified user
+                          </p>
+                          <p className="text-xs text-[#888780]">
+                            {new Date(review.created_at).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              },
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <StarRating rating={review.rating} size="sm" />
+                    </div>
+                    {review.review_text && (
+                      <p className="text-sm text-[#5F5E5A] leading-relaxed">
+                        {review.review_text}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 bg-[#F1EFE8] rounded-xl">
+                <p className="text-sm text-[#5F5E5A]">No reviews yet.</p>
+                <p className="text-xs text-[#888780] mt-1">
+                  Be the first to review this hospital.
+                </p>
+              </div>
+            )}
           </section>
         </div>
 
+        {/* Right sidebar */}
         <div className="w-full lg:w-64 p-6 bg-white">
           <h2 className="text-sm font-medium text-[#1A1A18] mb-4">
             Contact & location
@@ -217,6 +323,8 @@ function HospitalDetail() {
           </button>
         </div>
       </div>
+
+      {/* Export modal */}
       {showExportModal && (
         <ExportModal
           hospitals={[hospital]}
