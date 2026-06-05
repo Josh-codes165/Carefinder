@@ -18,7 +18,7 @@ function Home() {
         <h1 className="text-4xl font-semibold text-[#1A1A18] tracking-tight">
           Carefinder
         </h1>
-s        <p className="text-[#5F5E5A] mt-2 text-lg">
+       <p className="text-[#5F5E5A] mt-2 text-lg">
           Find hospitals anywhere in Nigeria
         </p>
       </div>
