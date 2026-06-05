@@ -3,7 +3,7 @@ import { createHospital, updateHospital } from '../lib/hospitals'
 import type { Hospital } from '../lib/hospitals'
 
 type HospitalFormProps = {
-  hospital?: Hospital | null   // if provided, we're editing. if null, we're creating
+  hospital?: Hospital | null  
   onSuccess: () => void
 }
 
@@ -30,8 +30,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>(
     Array.isArray(hospital?.specialties) ? hospital.specialties : []
   )
-  const [isPublished, setIsPublished] = useState(hospital?.is_published ?? false)
-
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
