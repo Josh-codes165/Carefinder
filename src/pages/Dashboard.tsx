@@ -11,11 +11,12 @@ import {
 import type { Hospital } from "../lib/hospitals";
 import { HospitalForm } from "../Components/HospitalForm";
 import { supabase } from "../lib/supabase";
+import InviteAdmin from "../Components/InviteAdmin";
 
-type ActiveSection = "overview" | "hospitals" | "reviews" | "create";
+type ActiveSection = "overview" | "hospitals" | "reviews" | "create" | "invite";
 
 export function AdminDashboard() {
-  const { user, signOut , session} = useAuth();
+  const { user, signOut, session } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeSection, setActiveSection] = useState<ActiveSection>("overview");
@@ -25,21 +26,21 @@ export function AdminDashboard() {
     queryKey: ["admin-hospitals"],
     queryFn: fetchAllHospitalsAdmin,
   });
+
   const { data: reviews, isLoading: reviewsLoading } = useQuery({
-  queryKey: ['admin-reviews', session?.access_token],
-  queryFn: async () => {
-    if (session) {
-      await supabase.auth.setSession({
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
-      })
-    }
-    const result = await fetchAllReviewsAdmin()
-    console.log('Admin reviews fetched:', result)
-    return result
-  },
-  enabled: !!session && !!user,
-})
+    queryKey: ["admin-reviews", session?.access_token],
+    queryFn: async () => {
+      if (session) {
+        await supabase.auth.setSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        });
+      }
+      const result = await fetchAllReviewsAdmin();
+      return result;
+    },
+    enabled: !!session && !!user,
+  });
 
   const deleteMutation = useMutation({
     mutationFn: deleteHospital,
@@ -62,22 +63,21 @@ export function AdminDashboard() {
   });
 
   function handleDeleteHospital(id: string, name: string) {
-    // Always confirm before deleting — this is irreversible
     if (
       window.confirm(
-        `Are you sure you want to delete "${name}"? This cannot be undone.`,
+        `Are you sure you want to delete "${name}"? This cannot be undone.`
       )
     ) {
       deleteMutation.mutate(id);
     }
   }
 
-  // Count pending reviews for the badge
   const pendingReviews =
-    reviews?.filter((r) => r.status === "pending").length ?? 0;
+    reviews?.filter((r: any) => r.status === "pending").length ?? 0;
 
   return (
     <div className="min-h-screen bg-[#F6F5F0] flex flex-col">
+
       {/* Top bar */}
       <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-4">
         <span className="text-[#0F6E56] font-semibold text-base">
@@ -106,8 +106,10 @@ export function AdminDashboard() {
       </div>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
+
+        {/* ---- Sidebar ---- */}
         <div className="w-52 bg-[#FAEEDA] border-r border-gray-100 flex-shrink-0 py-4">
+
           <div className="px-4 mb-2">
             <p className="text-xs font-medium text-[#888780] uppercase tracking-wider">
               Overview
@@ -153,21 +155,36 @@ export function AdminDashboard() {
             onClick={() => setActiveSection("reviews")}
             badge={pendingReviews > 0 ? pendingReviews : undefined}
           />
+
+          {/* Admin section — inside sidebar */}
+          <div className="px-4 mt-4 mb-2">
+            <p className="text-xs font-medium text-[#888780] uppercase tracking-wider">
+              Admin
+            </p>
+          </div>
+          <NavItem
+            label="Invite admin"
+            icon="✉️"
+            active={activeSection === "invite"}
+            onClick={() => setActiveSection("invite")}
+          />
+
         </div>
 
-        {/* Main content */}
+        {/* ---- Main content ---- */}
         <div className="flex-1 overflow-y-auto p-6">
-          {/* OVERVIEW SECTION */}
+
+          {/* OVERVIEW */}
           {activeSection === "overview" && (
             <div>
               <h1 className="text-xl font-semibold text-[#1A1A18] mb-1">
                 Dashboard
               </h1>
               <p className="text-sm text-[#888780] mb-6">
-                Welcome back, {user?.user_metadata?.full_name?.split(" ")[0]}
+                Welcome back,{" "}
+                {user?.user_metadata?.full_name?.split(" ")[0]}
               </p>
 
-              {/* Stat cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <StatCard
                   label="Total hospitals"
@@ -176,7 +193,9 @@ export function AdminDashboard() {
                 />
                 <StatCard
                   label="Published"
-                  value={hospitals?.filter((h) => h.is_published).length ?? 0}
+                  value={
+                    hospitals?.filter((h) => h.is_published).length ?? 0
+                  }
                   delta="visible to public"
                 />
                 <StatCard
@@ -192,7 +211,6 @@ export function AdminDashboard() {
                 />
               </div>
 
-              {/* Quick actions */}
               <h2 className="text-sm font-medium text-[#1A1A18] mb-3">
                 Quick actions
               </h2>
@@ -215,11 +233,17 @@ export function AdminDashboard() {
                 >
                   🏥 Manage hospitals
                 </button>
+                <button
+                  onClick={() => setActiveSection("invite")}
+                  className="border border-gray-200 text-[#1A1A18] text-sm font-medium px-5 py-2.5 rounded-lg hover:border-[#5DCAA5] transition-colors"
+                >
+                  ✉️ Invite admin
+                </button>
               </div>
             </div>
           )}
 
-          {/* HOSPITALS SECTION */}
+          {/* HOSPITALS */}
           {activeSection === "hospitals" && (
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -313,7 +337,7 @@ export function AdminDashboard() {
                                 onClick={() =>
                                   handleDeleteHospital(
                                     hospital.id,
-                                    hospital.name,
+                                    hospital.name
                                   )
                                 }
                                 className="w-8 h-8 rounded-lg bg-[#FCEBEB] text-[#A32D2D] flex items-center justify-center hover:bg-red-100 transition-colors"
@@ -332,7 +356,7 @@ export function AdminDashboard() {
             </div>
           )}
 
-          {/* CREATE / EDIT SECTION */}
+          {/* CREATE / EDIT */}
           {activeSection === "create" && (
             <div>
               <div className="flex items-center gap-3 mb-6">
@@ -346,7 +370,6 @@ export function AdminDashboard() {
                   {editingHospital ? "Edit hospital" : "Add new hospital"}
                 </h1>
               </div>
-
               <HospitalForm
                 hospital={editingHospital}
                 onSuccess={() => {
@@ -359,7 +382,7 @@ export function AdminDashboard() {
             </div>
           )}
 
-          {/* REVIEWS SECTION */}
+          {/* REVIEWS */}
           {activeSection === "reviews" && (
             <div>
               <h1 className="text-xl font-semibold text-[#1A1A18] mb-6">
@@ -410,8 +433,8 @@ export function AdminDashboard() {
                           review.status === "approved"
                             ? "bg-[#E1F5EE] text-[#0F6E56]"
                             : review.status === "hidden"
-                              ? "bg-[#FCEBEB] text-[#A32D2D]"
-                              : "bg-[#FAEEDA] text-[#BA7517]"
+                            ? "bg-[#FCEBEB] text-[#A32D2D]"
+                            : "bg-[#FAEEDA] text-[#BA7517]"
                         }`}
                       >
                         {review.status}
@@ -455,13 +478,26 @@ export function AdminDashboard() {
               </div>
             </div>
           )}
+
+          {/* INVITE */}
+          {activeSection === "invite" && (
+            <div>
+              <h1 className="text-xl font-semibold text-[#1A1A18] mb-1">
+                Invite admin
+              </h1>
+              <p className="text-sm text-[#888780] mb-6">
+                Invite a new admin by email. They'll receive a link to set
+                their password.
+              </p>
+              <InviteAdmin />
+            </div>
+          )}
+
         </div>
       </div>
     </div>
   );
 }
-
-// ---- Small reusable components ----
 
 function NavItem({
   label,
@@ -481,7 +517,7 @@ function NavItem({
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
         active
-          ? "bg-[#BA7517]/10 border-l-3 border-l-[#BA7517] text-[#1A1A18] font-medium"
+          ? "bg-[#BA7517]/10 border-l-4 border-l-[#BA7517] text-[#1A1A18] font-medium"
           : "text-[#5F5E5A] hover:bg-[#BA7517]/5"
       }`}
     >
@@ -519,11 +555,7 @@ function StatCard({
       >
         {value}
       </p>
-      <p
-        className={`text-xs mt-1 ${
-          highlight ? "text-[#BA7517]" : "text-[#888780]"
-        }`}
-      >
+      <p className={`text-xs mt-1 ${highlight ? "text-[#BA7517]" : "text-[#888780]"}`}>
         {delta}
       </p>
     </div>

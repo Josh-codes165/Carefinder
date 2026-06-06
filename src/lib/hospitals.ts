@@ -171,9 +171,11 @@ export async function submitReview({
 }) {
   const { data: { session } } = await supabase.auth.getSession()
   
-  if (!session) throw new Error('You must be logged in to submit a review')
+  console.log('Session in submitReview:', !!session)
+  console.log('User ID in submitReview:', session?.user?.id)
+  console.log('Access token exists:', !!session?.access_token)
 
-  console.log('Submitting review:', { hospitalId, rating, reviewText })
+  if (!session) throw new Error('You must be logged in to submit a review')
 
   const { data, error } = await supabase
     .from('reviews')
