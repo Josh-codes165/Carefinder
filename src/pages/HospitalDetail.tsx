@@ -6,13 +6,13 @@ import type { Review } from "../lib/hospitals";
 import ExportModal from "../Components/ExportModal";
 import StarRating from "../Components/StarRating";
 import WriteReview from "../Components/WriteReview";
+import ReactMarkdown from 'react-markdown'
 
 function HospitalDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showExportModal, setShowExportModal] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
-
 
   const {
     data: hospital,
@@ -24,14 +24,12 @@ function HospitalDetail() {
     enabled: !!id,
   });
 
-  // ADD THIS RIGHT HERE — before the if statements
   const { data: reviews } = useQuery({
     queryKey: ["reviews", id],
     queryFn: () => fetchHospitalReviews(id!),
     enabled: !!id,
   });
 
-  // Early returns come AFTER all hooks
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#F6F5F0] flex items-center justify-center">
@@ -111,9 +109,9 @@ function HospitalDetail() {
           {hospital.description && (
             <section className="mb-6">
               <h2 className="text-sm font-medium text-[#1A1A18] mb-3">About</h2>
-              <p className="text-sm text-[#5F5E5A] leading-relaxed">
-                {hospital.description}
-              </p>
+              <div className="prose prose-sm text-[#5F5E5A] max-w-none">
+                <ReactMarkdown>{hospital.description}</ReactMarkdown>
+              </div>
             </section>
           )}
 
