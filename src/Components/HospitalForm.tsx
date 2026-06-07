@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -6,9 +5,6 @@ import MDEditor from '@uiw/react-md-editor'
 import { createHospital, updateHospital } from '../lib/hospitals'
 import type { Hospital } from '../lib/hospitals'
 
-// ---- Zod schema ----
-// This defines the rules for every field in the form.
-// Zod checks all fields at once when the form is submitted.
 const hospitalSchema = z.object({
   name: z.string().min(1, 'Hospital name is required'),
   address: z.string().min(1, 'Address is required'),
@@ -60,8 +56,7 @@ type HospitalFormProps = {
 export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
   const isEditing = !!hospital
 
-  // react-hook-form setup with Zod resolver
-  // The resolver connects Zod schema to react-hook-form
+
   const {
     register,
     handleSubmit,
@@ -71,7 +66,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
     formState: { errors, isSubmitting },
   } = useForm<HospitalFormData>({
     resolver: zodResolver(hospitalSchema),
-    // Pre-fill form with existing data when editing
     defaultValues: {
       name: hospital?.name ?? '',
       address: hospital?.address ?? '',
@@ -91,7 +85,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
     },
   })
 
-  // Watch these values to show them in the UI
   const watchedSpecialties = watch('specialties')
   const watchedOwnership = watch('ownership_type')
 
@@ -104,7 +97,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
     }
   }
 
-  // This runs when the form is submitted and passes Zod validation
   async function onSubmit(data: HospitalFormData, publish: boolean) {
     try {
       const hospitalData = {
@@ -130,7 +122,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-      {/* LEFT — Form fields */}
       <div className="bg-white border border-gray-100 rounded-xl p-6">
 
         {/* Hospital name */}
@@ -146,7 +137,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
           />
         </FormField>
 
-        {/* City and LGA */}
         <div className="grid grid-cols-2 gap-3">
           <FormField label="City" required error={errors.city?.message}>
             <input
@@ -164,7 +154,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
           </FormField>
         </div>
 
-        {/* State */}
         <FormField label="State" required error={errors.state?.message}>
           <input
             {...register('state')}
@@ -173,7 +162,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
           />
         </FormField>
 
-        {/* Address */}
         <FormField label="Full address" required error={errors.address?.message}>
           <input
             {...register('address')}
@@ -182,7 +170,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
           />
         </FormField>
 
-        {/* Phone and Email */}
         <div className="grid grid-cols-2 gap-3">
           <FormField label="Phone number" error={errors.phone?.message}>
             <input
@@ -200,7 +187,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
           </FormField>
         </div>
 
-        {/* Coordinates */}
         <div className="grid grid-cols-2 gap-3">
           <FormField label="Latitude" error={errors.latitude?.message}>
             <input
@@ -222,7 +208,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
           </FormField>
         </div>
 
-        {/* Ownership type */}
         <FormField label="Ownership type">
           <div className="flex gap-2">
             {(['public', 'private'] as const).map(type => (
@@ -242,7 +227,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
           </div>
         </FormField>
 
-        {/* Specialties */}
         <FormField label="Specialties">
           <div className="flex flex-wrap gap-2">
             {SPECIALTIES.map(specialty => (
@@ -264,14 +248,11 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
 
       </div>
 
-      {/* RIGHT — Markdown editors + actions */}
       <div className="flex flex-col gap-4">
 
-        {/* Description — Markdown editor */}
         <div className="bg-white border border-gray-100 rounded-xl p-6 flex-1">
 
           <FormField label="About / Description">
-            {/* Controller wraps non-standard inputs for react-hook-form */}
             <Controller
               name="description"
               control={control}
@@ -299,7 +280,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
                     onChange={field.onChange}
                     height={140}
                     preview="edit"
-                    placeholder={`Monday – Friday: 8:00 AM – 8:00 PM\nSaturday: 9:00 AM – 5:00 PM\nEmergency: 24/7`}
                   />
                 </div>
               )}
