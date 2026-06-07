@@ -8,12 +8,14 @@ import StarRating from "../Components/StarRating";
 import WriteReview from "../Components/WriteReview";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import ShareModal from "../Components/ShareModal";
 
 function HospitalDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showExportModal, setShowExportModal] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const {
     data: hospital,
@@ -317,7 +319,10 @@ function HospitalDetail() {
 
           <div className="border-t border-gray-100 my-5" />
 
-          <button className="w-full bg-[#0F6E56] text-white text-sm font-medium py-2.5 rounded-lg hover:bg-[#085041] transition-colors mb-2">
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="w-full bg-[#0F6E56] text-white text-sm font-medium py-2.5 rounded-lg hover:bg-[#085041] transition-colors mb-2"
+          >
             Share this hospital
           </button>
           <button
@@ -334,6 +339,12 @@ function HospitalDetail() {
           hospitals={[hospital]}
           searchQuery={hospital.name}
           onClose={() => setShowExportModal(false)}
+        />
+      )}
+      {showShareModal && (
+        <ShareModal
+          hospitals={[hospital]}
+          onClose={() => setShowShareModal(false)}
         />
       )}
     </div>

@@ -2,24 +2,25 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, content-type',
-      }
+      status: 200,
+      headers: corsHeaders,
     })
   }
 
   try {
-    // Log that we entered the function
     console.log('Function called')
     console.log('RESEND_API_KEY exists:', !!RESEND_API_KEY)
 
     const body = await req.json()
-    console.log('Request body received:', JSON.stringify(body))
-
     const { recipientEmail, hospitals, shareableLink } = body
 
     console.log('Sending to:', recipientEmail)
@@ -68,7 +69,6 @@ serve(async (req) => {
       }),
     })
 
-    // Log the full Resend response so we can see what went wrong
     const resendData = await resendResponse.json()
     console.log('Resend status:', resendResponse.status)
     console.log('Resend response:', JSON.stringify(resendData))
@@ -77,24 +77,21 @@ serve(async (req) => {
       throw new Error(`Resend error: ${JSON.stringify(resendData)}`)
     }
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+    return new Response(
+      JSON.stringify({ success: true }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
-    })
+    )
 
   } catch (error) {
-    // Log the full error
     console.error('Function error:', error)
     return new Response(
       JSON.stringify({ error: String(error) }),
       {
         status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     )
   }
