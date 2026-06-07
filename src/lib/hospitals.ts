@@ -1,5 +1,7 @@
 import { supabase } from "./supabase";
 
+// ---- Types ----
+
 export type Hospital = {
   id: string;
   name: string;
@@ -20,7 +22,6 @@ export type Hospital = {
   updated_at: string;
   latitude: number | null;
   longitude: number | null;
-  status: "pending" | "approved" | "rejected";
 };
 
 export type Review = {
@@ -33,40 +34,55 @@ export type Review = {
   created_at: string;
 };
 
+// ---- Public hospital functions ----
+
 export async function fetchHospitals({
   city,
   specialty,
+  ownership,
+  sortBy,
 }: {
   city?: string | null;
   specialty?: string | null;
+  ownership?: string | null;
+  sortBy?: string | null;
 }) {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  console.log(
-    "fetchHospitals - signed in as:",
-    session?.user?.email ?? "anonymous",
-  );
+  console.log("fetchHospitals called with:", { city, specialty, ownership, sortBy });
 
-  let query = supabase.from("hospitals").select("*").eq("is_published", true);
+  let query = supabase
+    .from("hospitals")
+    .select("*")
+    .eq("is_published", true);
 
+  // Filter by city
   if (city) {
     query = query.ilike("city", `%${city}%`);
   }
 
+  // Filter by specialty
   if (specialty) {
     query = query.contains("specialties", [specialty]);
   }
 
-  query = query.order("name");
+  // Filter by ownership type
+  if (ownership === "public" || ownership === "private") {
+    query = query.eq("ownership_type", ownership);
+  }
+
+  // Sort results
+  if (sortBy === "rating") {
+    query = query.order("avg_rating", { ascending: false });
+  } else {
+    // Default — sort alphabetically by name
+    query = query.order("name", { ascending: true });
+  }
 
   const { data, error } = await query;
 
-  if (error) {
-    console.error("fetchHospitals error:", error);
-    throw error;
-  }
+  console.log("fetchHospitals result count:", data?.length);
+  console.log("fetchHospitals error:", error);
 
+  if (error) throw error;
   return data as Hospital[];
 }
 
@@ -81,11 +97,7 @@ export async function fetchHospitalById(id: string) {
   return data as Hospital;
 }
 
-export async function createHospital(data: Partial<Hospital>) {
-  const { error } = await supabase.from("hospitals").insert([data]);
-
-  if (error) throw error;
-}
+// ---- Admin hospital functions ----
 
 export async function fetchAllHospitalsAdmin() {
   const {
@@ -93,7 +105,6 @@ export async function fetchAllHospitalsAdmin() {
   } = await supabase.auth.getSession();
 
   console.log("Fetching as:", session?.user?.email);
-  console.log("Token:", session?.access_token?.substring(0, 20));
 
   const { data, error } = await supabase
     .from("hospitals")
@@ -108,51 +119,34 @@ export async function fetchAllHospitalsAdmin() {
   return data as Hospital[];
 }
 
-export async function deleteHospital(id: string) {
-  const { error } = await supabase.from("hospitals").delete().eq("id", id);
-
+export async function createHospital(data: Partial<Hospital>) {
+  const { error } = await supabase.from("hospitals").insert([data]);
   if (error) throw error;
 }
 
 export async function updateHospital(id: string, data: Partial<Hospital>) {
-  const { error } = await supabase.from("hospital").update(data).eq("id", id);
-
-  if (error) throw error;
-}
-
-export async function fetchAllReviewsAdmin() {
-  const { data, error } = await supabase
-    .from('reviews')
-    .select(`
-      *,
-      hospitals ( name )
-    `)
-    .order('created_at', { ascending: false })
-
-  console.log('fetchAllReviewsAdmin data:', data)
-  console.log('fetchAllReviewsAdmin error:', error)
-
-  if (error) throw error
-  return data
-}
-
-export async function updateReviewStatus(
-  id: string,
-  status: "approved" | "hidden",
-) {
   const { error } = await supabase
-    .from("reviews")
-    .update({ status })
+    .from("hospitals")
+    .update(data)
     .eq("id", id);
-
   if (error) throw error;
 }
 
-export async function fetchHospitalReviews(hospital_id: string) {
+export async function deleteHospital(id: string) {
+  const { error } = await supabase
+    .from("hospitals")
+    .delete()
+    .eq("id", id);
+  if (error) throw error;
+}
+
+// ---- Review functions ----
+
+export async function fetchHospitalReviews(hospitalId: string) {
   const { data, error } = await supabase
     .from("reviews")
     .select("*")
-    .eq("hospital_id", hospital_id)
+    .eq("hospital_id", hospitalId)
     .eq("status", "approved")
     .order("created_at", { ascending: false });
 
@@ -165,31 +159,83 @@ export async function submitReview({
   rating,
   reviewText,
 }: {
-  hospitalId: string
-  rating: number
-  reviewText: string
+  hospitalId: string;
+  rating: number;
+  reviewText: string;
 }) {
-  const { data: { session } } = await supabase.auth.getSession()
-  
-  console.log('Session in submitReview:', !!session)
-  console.log('User ID in submitReview:', session?.user?.id)
-  console.log('Access token exists:', !!session?.access_token)
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!session) throw new Error('You must be logged in to submit a review')
+  console.log("Session in submitReview:", !!session);
+  console.log("User ID in submitReview:", session?.user?.id);
+  console.log("Access token exists:", !!session?.access_token);
+
+  if (!session) throw new Error("You must be logged in to submit a review");
 
   const { data, error } = await supabase
-    .from('reviews')
-    .insert([{
-      hospital_id: hospitalId,
-      user_id: session.user.id,
-      rating,
-      review_text: reviewText,
-      status: 'pending',
-    }])
-    .select()
+    .from("reviews")
+    .insert([
+      {
+        hospital_id: hospitalId,
+        user_id: session.user.id,
+        rating,
+        review_text: reviewText,
+        status: "pending",
+      },
+    ])
+    .select();
 
-  console.log('Insert result:', data)
-  console.log('Insert error:', error)
+  console.log("Insert result:", data);
+  console.log("Insert error:", error);
+
+  if (error) throw error;
+}
+
+export async function fetchAllReviewsAdmin() {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select(`
+      *,
+      hospitals ( name )
+    `)
+    .order("created_at", { ascending: false });
+
+  console.log("fetchAllReviewsAdmin data:", data);
+  console.log("fetchAllReviewsAdmin error:", error);
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateReviewStatus(
+  id: string,
+  status: "approved" | "hidden"
+) {
+  const { error } = await supabase
+    .from("reviews")
+    .update({ status })
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+export async function fetchHospitalsByRadius({
+  lat,
+  lng,
+  radiusKm,
+}: {
+  lat: number
+  lng: number
+  radiusKm: number
+}) {
+  const { data, error } = await supabase
+    .rpc('hospitals_within_radius', {
+      lat,
+      lng,
+      radius_km: radiusKm,
+    })
 
   if (error) throw error
+  return data as Hospital[]
 }

@@ -6,7 +6,8 @@ import type { Review } from "../lib/hospitals";
 import ExportModal from "../Components/ExportModal";
 import StarRating from "../Components/StarRating";
 import WriteReview from "../Components/WriteReview";
-import ReactMarkdown from 'react-markdown'
+import {marked} from "marked";
+import DOMPurify from "dompurify";
 
 function HospitalDetail() {
   const { id } = useParams();
@@ -105,26 +106,34 @@ function HospitalDetail() {
             </div>
           </section>
 
-          {/* About */}
           {hospital.description && (
             <section className="mb-6">
               <h2 className="text-sm font-medium text-[#1A1A18] mb-3">About</h2>
-              <div className="prose prose-sm text-[#5F5E5A] max-w-none">
-                <ReactMarkdown>{hospital.description}</ReactMarkdown>
-              </div>
+              <div
+                className="text-sm text-[#5F5E5A] leading-relaxed prose max-w-none"
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(
+                    marked(hospital.description) as string,
+                  ),
+                }}
+              />
             </section>
           )}
 
-          {/* Visiting hours */}
           {hospital.visiting_hours && (
             <section className="mb-6">
               <h2 className="text-sm font-medium text-[#1A1A18] mb-3">
                 Visiting hours
               </h2>
               <div className="bg-[#F1EFE8] rounded-lg p-4">
-                <p className="text-sm text-[#5F5E5A] leading-relaxed whitespace-pre-line">
-                  {hospital.visiting_hours}
-                </p>
+                <div
+                  className="text-sm text-[#5F5E5A] leading-relaxed prose max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      marked(hospital.visiting_hours) as string,
+                    ),
+                  }}
+                />
               </div>
             </section>
           )}
