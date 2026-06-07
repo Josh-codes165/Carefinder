@@ -17,12 +17,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // const isAdmin = user?.user_metadata?.role === "admin"
-
-  // Change this:
-  // const isAdmin = user?.user_metadata?.role === 'admin'
-
-  // To this — checks both places the role could be:
   const isAdmin =
     user?.user_metadata?.role === "admin" || (user as any)?.role === "admin";
 

@@ -107,7 +107,6 @@ export function AdminDashboard() {
 
       <div className="flex flex-1">
 
-        {/* ---- Sidebar ---- */}
         <div className="w-52 bg-[#FAEEDA] border-r border-gray-100 flex-shrink-0 py-4">
 
           <div className="px-4 mb-2">
@@ -156,7 +155,6 @@ export function AdminDashboard() {
             badge={pendingReviews > 0 ? pendingReviews : undefined}
           />
 
-          {/* Admin section — inside sidebar */}
           <div className="px-4 mt-4 mb-2">
             <p className="text-xs font-medium text-[#888780] uppercase tracking-wider">
               Admin
@@ -171,10 +169,8 @@ export function AdminDashboard() {
 
         </div>
 
-        {/* ---- Main content ---- */}
         <div className="flex-1 overflow-y-auto p-6">
 
-          {/* OVERVIEW */}
           {activeSection === "overview" && (
             <div>
               <h1 className="text-xl font-semibold text-[#1A1A18] mb-1">
@@ -243,7 +239,6 @@ export function AdminDashboard() {
             </div>
           )}
 
-          {/* HOSPITALS */}
           {activeSection === "hospitals" && (
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -356,7 +351,6 @@ export function AdminDashboard() {
             </div>
           )}
 
-          {/* CREATE / EDIT */}
           {activeSection === "create" && (
             <div>
               <div className="flex items-center gap-3 mb-6">
@@ -382,7 +376,6 @@ export function AdminDashboard() {
             </div>
           )}
 
-          {/* REVIEWS */}
           {activeSection === "reviews" && (
             <div>
               <h1 className="text-xl font-semibold text-[#1A1A18] mb-6">
@@ -479,7 +472,6 @@ export function AdminDashboard() {
             </div>
           )}
 
-          {/* INVITE */}
           {activeSection === "invite" && (
             <div>
               <h1 className="text-xl font-semibold text-[#1A1A18] mb-1">

@@ -76,7 +76,6 @@ function Login() {
   return (
     <div className="min-h-screen bg-[#F6F5F0] flex flex-col items-center justify-center px-4">
       <div className="bg-white rounded-2xl border border-gray-100 w-full max-w-md overflow-hidden shadow-sm">
-        {/* Header */}
         <div className="px-8 pt-8 pb-6 text-center border-b border-gray-100">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-[#0F6E56] rounded-xl mb-4">
             <span className="text-white text-2xl font-light">+</span>

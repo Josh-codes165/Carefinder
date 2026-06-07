@@ -107,7 +107,6 @@ function Search() {
   return (
     <div className="h-screen flex flex-col bg-[#F6F5F0]">
 
-      {/* Top bar */}
       <div className="bg-white border-b border-gray-100 px-4 lg:px-6 py-3 flex items-center gap-2 lg:gap-4 flex-shrink-0">
         <a
           href="/"
@@ -121,7 +120,6 @@ function Search() {
             : city || "All hospitals"}
         </div>
 
-        {/* Auth */}
         {user ? (
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="hidden lg:block text-sm text-[#5F5E5A]">
@@ -143,7 +141,6 @@ function Search() {
           </a>
         )}
 
-        {/* Share and Export */}
         {hospitals && hospitals.length > 0 && (
           <>
             <button
@@ -162,10 +159,8 @@ function Search() {
         )}
       </div>
 
-      {/* Filter chips */}
       <div className="bg-white border-b border-gray-100 px-4 lg:px-6 py-2 flex gap-2 flex-wrap flex-shrink-0 items-center">
 
-        {/* Specialty filters */}
         {["Maternity", "Emergency", "Pediatric", "Dental"].map((s) => (
           <button
             key={s}
@@ -182,7 +177,6 @@ function Search() {
 
         <div className="w-px h-5 bg-gray-200 mx-1" />
 
-        {/* Ownership filters */}
         {["public", "private"].map((type) => (
           <button
             key={type}
@@ -201,7 +195,6 @@ function Search() {
 
         <div className="w-px h-5 bg-gray-200 mx-1" />
 
-        {/* Sort dropdown */}
         <select
           value={sortBy ?? "name"}
           onChange={(e) => handleSortChange(e.target.value)}
@@ -213,7 +206,6 @@ function Search() {
 
         <div className="w-px h-5 bg-gray-200 mx-1" />
 
-        {/* Location-based search */}
         {userLocation ? (
           <div className="flex items-center gap-2">
             <select
@@ -246,17 +238,14 @@ function Search() {
           </button>
         )}
 
-        {/* Location error */}
         {locationError && (
           <p className="text-xs text-[#A32D2D]">{locationError}</p>
         )}
 
       </div>
 
-      {/* Main content */}
       <div className="flex flex-1 overflow-hidden relative">
 
-        {/* List panel */}
         <div
           className={`${
             showMap ? "hidden" : "flex"
@@ -313,7 +302,6 @@ function Search() {
           )}
         </div>
 
-        {/* Map panel */}
         <div
           className={`${showMap ? "flex" : "hidden"} lg:flex flex-1 relative`}
         >
@@ -339,7 +327,6 @@ function Search() {
 
       </div>
 
-      {/* Mobile toggle button */}
       {hospitals && hospitals.length > 0 && (
         <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
           <button
@@ -351,7 +338,6 @@ function Search() {
         </div>
       )}
 
-      {/* Modals */}
       {showExportModal && hospitals && (
         <ExportModal
           hospitals={hospitals}

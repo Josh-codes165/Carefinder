@@ -50,7 +50,6 @@ function ExportModal({ hospitals, searchQuery, onClose }: ExportModalProps) {
         className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
           <span className="text-lg">📥</span>
           <h2 className="text-base font-semibold text-[#1A1A18]">
@@ -79,7 +78,6 @@ function ExportModal({ hospitals, searchQuery, onClose }: ExportModalProps) {
                   onClick={() => toggleColumn(column.key)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-[#F6F5F0] transition-colors"
                 >
-                  {/* Custom checkbox */}
                   <div
                     className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border transition-colors ${
                       isChecked

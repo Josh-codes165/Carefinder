@@ -74,21 +74,18 @@ function InviteAdmin() {
         access.
       </p>
 
-      {/* Success message */}
       {success && (
         <div className="bg-[#E1F5EE] border border-[#5DCAA5] rounded-lg px-4 py-3 text-sm text-[#0F6E56] mb-4">
           ✅ {success}
         </div>
       )}
 
-      {/* Error message */}
       {error && (
         <div className="bg-[#FCEBEB] border border-red-200 rounded-lg px-4 py-3 text-sm text-[#A32D2D] mb-4">
           {error}
         </div>
       )}
 
-      {/* Full name */}
       <div className="mb-4">
         <label className="block text-xs font-medium text-[#5F5E5A] uppercase tracking-wide mb-2">
           Full name
@@ -102,7 +99,6 @@ function InviteAdmin() {
         />
       </div>
 
-      {/* Email */}
       <div className="mb-5">
         <label className="block text-xs font-medium text-[#5F5E5A] uppercase tracking-wide mb-2">
           Email address <span className="text-[#A32D2D]">*</span>

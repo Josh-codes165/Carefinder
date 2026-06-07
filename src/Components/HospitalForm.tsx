@@ -10,7 +10,6 @@ import {
 } from "../lib/hospitals";
 import type { Hospital } from "../lib/hospitals";
 
-// ---- Zod schema ----
 const hospitalSchema = z.object({
   name: z.string().min(1, "Hospital name is required"),
   address: z.string().min(1, "Address is required"),
@@ -22,11 +21,7 @@ const hospitalSchema = z.object({
     .regex(/^\+?[\d\s\-()]{7,}$/, "Invalid phone number format")
     .optional()
     .or(z.literal("")),
-  email: z
-    .string()
-    .email("Invalid email address")
-    .optional()
-    .or(z.literal("")),
+  email: z.string().email("Invalid email address").optional().or(z.literal("")),
   description: z.string().optional(),
   visiting_hours: z.string().optional(),
   ownership_type: z.enum(["public", "private"]),
@@ -66,10 +61,9 @@ type HospitalFormProps = {
 export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
   const isEditing = !!hospital;
 
-  // Image upload state
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(
-    hospital?.image_url ?? null
+    hospital?.image_url ?? null,
   );
   const [isUploading, setIsUploading] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -110,7 +104,7 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
     if (current.includes(specialty)) {
       setValue(
         "specialties",
-        current.filter((s) => s !== specialty)
+        current.filter((s) => s !== specialty),
       );
     } else {
       setValue("specialties", [...current, specialty]);
@@ -140,7 +134,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
       setSubmitError("");
       let imageUrl = hospital?.image_url ?? null;
 
-      // Upload image if a new one was selected
       if (imageFile) {
         setIsUploading(true);
         imageUrl = await uploadHospitalImage(imageFile);
@@ -173,10 +166,7 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-      {/* LEFT — Form fields */}
       <div className="bg-white border border-gray-100 rounded-xl p-6">
-
         {submitError && (
           <div className="bg-[#FCEBEB] border border-red-200 rounded-lg px-4 py-3 text-sm text-[#A32D2D] mb-4">
             {submitError}
@@ -266,7 +256,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
           </FormField>
         </div>
 
-        {/* Ownership type */}
         <FormField label="Ownership type">
           <div className="flex gap-2">
             {(["public", "private"] as const).map((type) => (
@@ -286,7 +275,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
           </div>
         </FormField>
 
-        {/* Specialties */}
         <FormField label="Specialties">
           <div className="flex flex-wrap gap-2">
             {SPECIALTIES.map((specialty) => (
@@ -305,15 +293,11 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
             ))}
           </div>
         </FormField>
-
       </div>
 
-      {/* RIGHT — Markdown editors + image + actions */}
       <div className="flex flex-col gap-4">
-
         {/* Description and visiting hours */}
         <div className="bg-white border border-gray-100 rounded-xl p-6">
-
           <FormField label="About / Description">
             <Controller
               name="description"
@@ -347,15 +331,11 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
               )}
             />
           </FormField>
-
         </div>
 
-        {/* Image upload */}
         <div className="bg-white border border-gray-100 rounded-xl p-6">
           <FormField label="Hospital photo">
             <div className="space-y-3">
-
-              {/* Image preview */}
               {imagePreview && (
                 <div className="relative">
                   <img
@@ -376,7 +356,6 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
                 </div>
               )}
 
-              {/* Upload zone — only show if no preview */}
               {!imagePreview && (
                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-[#5DCAA5] hover:bg-[#F1EFE8] transition-colors">
                   <span className="text-2xl mb-2">📷</span>
@@ -400,12 +379,10 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
                   Uploading image...
                 </p>
               )}
-
             </div>
           </FormField>
         </div>
 
-        {/* Action buttons */}
         <div className="bg-white border border-gray-100 rounded-xl p-4 flex gap-3">
           <button
             type="button"
@@ -424,17 +401,14 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
             {isSubmitting || isUploading
               ? "Saving..."
               : isEditing
-              ? "Update & publish"
-              : "Publish"}
+                ? "Update & publish"
+                : "Publish"}
           </button>
         </div>
-
       </div>
     </div>
   );
 }
-
-// ---- Helpers ----
 
 function inputClass(hasError: boolean) {
   return `w-full rounded-lg px-4 py-2.5 text-sm text-[#1A1A18] outline-none border transition-colors ${

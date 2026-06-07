@@ -237,7 +237,6 @@ function ShareModal({ hospitals, onClose }: ShareModalProps) {
                     </div>
                   )}
 
-                  {/* Send button */}
                   <button
                     onClick={handleSendEmail}
                     disabled={

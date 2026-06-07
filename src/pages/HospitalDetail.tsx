@@ -56,7 +56,6 @@ function HospitalDetail() {
   }
   return (
     <div className="min-h-screen bg-[#F6F5F0]">
-      {/* Top nav */}
       <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-4">
         <span className="text-[#0F6E56] font-semibold text-base">
           Carefinder
@@ -90,11 +89,8 @@ function HospitalDetail() {
         </span>
       </div>
 
-      {/* Two column body */}
       <div className="flex flex-col lg:flex-row gap-0 max-w-6xl mx-auto">
-        {/* Left column */}
         <div className="flex-1 p-6 border-r border-gray-100">
-          {/* Specialties */}
           <section className="mb-6">
             <h2 className="text-sm font-medium text-[#1A1A18] mb-3">
               Specialties
@@ -146,7 +142,6 @@ function HospitalDetail() {
             </section>
           )}
 
-          {/* Ratings and reviews */}
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-medium text-[#1A1A18]">
@@ -162,7 +157,6 @@ function HospitalDetail() {
               )}
             </div>
 
-            {/* Rating summary */}
             <div className="flex items-center gap-4 bg-[#F1EFE8] rounded-xl p-4 mb-5">
               <div className="text-center">
                 <p className="text-4xl font-semibold text-[#1A1A18]">
@@ -178,7 +172,6 @@ function HospitalDetail() {
                 </p>
               </div>
 
-              {/* Rating bars */}
               <div className="flex-1">
                 {[5, 4, 3, 2, 1].map((star) => {
                   const count =
@@ -200,7 +193,6 @@ function HospitalDetail() {
               </div>
             </div>
 
-            {/* Write review form */}
             {showReviewForm && (
               <div className="mb-5">
                 <WriteReview
@@ -210,7 +202,6 @@ function HospitalDetail() {
               </div>
             )}
 
-            {/* Reviews list */}
             {reviews && reviews.length > 0 ? (
               <div className="flex flex-col gap-3">
                 {reviews.map((review: Review) => (
@@ -260,7 +251,6 @@ function HospitalDetail() {
           </section>
         </div>
 
-        {/* Right sidebar */}
         <div className="w-full lg:w-64 p-6 bg-white">
           <h2 className="text-sm font-medium text-[#1A1A18] mb-4">
             Contact & location
@@ -339,7 +329,6 @@ function HospitalDetail() {
         </div>
       </div>
 
-      {/* Export modal */}
       {showExportModal && (
         <ExportModal
           hospitals={[hospital]}

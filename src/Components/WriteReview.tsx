@@ -10,7 +10,6 @@ type WriteReviewProps = {
 };
 
 function WriteReview({ hospitalId, onClose }: WriteReviewProps) {
-  //  console.log('WriteReview hospitalId:', hospitalId)
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -76,7 +75,6 @@ function WriteReview({ hospitalId, onClose }: WriteReviewProps) {
         Write a review
       </h3>
 
-      {/* Star picker */}
       <div className="mb-4">
         <p className="text-xs text-[#888780] uppercase tracking-wide font-medium mb-2">
           Your rating
@@ -96,7 +94,6 @@ function WriteReview({ hospitalId, onClose }: WriteReviewProps) {
         )}
       </div>
 
-      {/* Review text */}
       <div className="mb-4">
         <p className="text-xs text-[#888780] uppercase tracking-wide font-medium mb-2">
           Your review (optional)
@@ -110,14 +107,12 @@ function WriteReview({ hospitalId, onClose }: WriteReviewProps) {
         />
       </div>
 
-      {/* Error message */}
       {mutation.isError && (
         <div className="bg-[#FCEBEB] border border-red-200 rounded-lg px-4 py-3 text-sm text-[#A32D2D] mb-4">
           Something went wrong. Please try again.
         </div>
       )}
 
-      {/* Buttons */}
       <div className="flex gap-3">
         <button
           onClick={onClose}
