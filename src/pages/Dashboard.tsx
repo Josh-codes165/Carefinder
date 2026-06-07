@@ -65,7 +65,7 @@ export function AdminDashboard() {
   function handleDeleteHospital(id: string, name: string) {
     if (
       window.confirm(
-        `Are you sure you want to delete "${name}"? This cannot be undone.`
+        `Are you sure you want to delete "${name}"? This cannot be undone.`,
       )
     ) {
       deleteMutation.mutate(id);
@@ -77,17 +77,15 @@ export function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F6F5F0] flex flex-col">
-
-      {/* Top bar */}
-      <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-4">
+      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
         <span className="text-[#0F6E56] font-semibold text-base">
           Carefinder
         </span>
         <span className="text-xs font-medium px-3 py-1 rounded-full bg-[#FAEEDA] text-[#BA7517] border border-[#FAC775]">
           ADMIN
         </span>
-        <div className="ml-auto flex items-center gap-4">
-          <span className="text-sm text-[#5F5E5A]">
+        <div className="ml-auto flex-wrap items-center gap-3">
+          <span className="text-xs sm:text-sm text-[#5F5E5A] break-all">
             {user?.user_metadata?.full_name || user?.email}
           </span>
           <button
@@ -105,10 +103,8 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      <div className="flex flex-1">
-
-        <div className="w-52 bg-[#FAEEDA] border-r border-gray-100 flex-shrink-0 py-4">
-
+      <div className="flex flex-col lg:flex-row flex-1">
+        <div className="w-full lg:w-52 bg-[#FAEEDA] border-b lg:border-b-0 lg:border-r border-gray-100 flex-shrink-0 py-4 overflow-x-auto">
           <div className="px-4 mb-2">
             <p className="text-xs font-medium text-[#888780] uppercase tracking-wider">
               Overview
@@ -166,22 +162,19 @@ export function AdminDashboard() {
             active={activeSection === "invite"}
             onClick={() => setActiveSection("invite")}
           />
-
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
-
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {activeSection === "overview" && (
             <div>
               <h1 className="text-xl font-semibold text-[#1A1A18] mb-1">
                 Dashboard
               </h1>
               <p className="text-sm text-[#888780] mb-6">
-                Welcome back,{" "}
-                {user?.user_metadata?.full_name?.split(" ")[0]}
+                Welcome back, {user?.user_metadata?.full_name?.split(" ")[0]}
               </p>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
                 <StatCard
                   label="Total hospitals"
                   value={hospitals?.length ?? 0}
@@ -189,9 +182,7 @@ export function AdminDashboard() {
                 />
                 <StatCard
                   label="Published"
-                  value={
-                    hospitals?.filter((h) => h.is_published).length ?? 0
-                  }
+                  value={hospitals?.filter((h) => h.is_published).length ?? 0}
                   delta="visible to public"
                 />
                 <StatCard
@@ -210,7 +201,7 @@ export function AdminDashboard() {
               <h2 className="text-sm font-medium text-[#1A1A18] mb-3">
                 Quick actions
               </h2>
-              <div className="flex gap-3 flex-wrap">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-3">
                 <button
                   onClick={() => setActiveSection("create")}
                   className="bg-[#0F6E56] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#085041] transition-colors"
@@ -241,7 +232,7 @@ export function AdminDashboard() {
 
           {activeSection === "hospitals" && (
             <div>
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <h1 className="text-xl font-semibold text-[#1A1A18]">
                   All hospitals
                 </h1>
@@ -250,7 +241,7 @@ export function AdminDashboard() {
                     setEditingHospital(null);
                     setActiveSection("create");
                   }}
-                  className="bg-[#0F6E56] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#085041] transition-colors"
+                  className="w-full sm:w-auto bg-[#0F6E56] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#085041] transition-colors"
                 >
                   ➕ Add hospital
                 </button>
@@ -261,8 +252,8 @@ export function AdminDashboard() {
               )}
 
               {hospitals && (
-                <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
-                  <table className="w-full text-sm">
+                <div className="bg-white border border-gray-100 rounded-xl overflow-x-auto">
+                  <table className="min-w-[700px] w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-100">
                         <th className="text-left px-4 py-3 text-xs font-medium text-[#888780] uppercase tracking-wide">
@@ -332,7 +323,7 @@ export function AdminDashboard() {
                                 onClick={() =>
                                   handleDeleteHospital(
                                     hospital.id,
-                                    hospital.name
+                                    hospital.name,
                                   )
                                 }
                                 className="w-8 h-8 rounded-lg bg-[#FCEBEB] text-[#A32D2D] flex items-center justify-center hover:bg-red-100 transition-colors"
@@ -398,7 +389,7 @@ export function AdminDashboard() {
                     key={review.id}
                     className="bg-white border border-gray-100 rounded-xl p-5"
                   >
-                    <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
                       <div>
                         <p className="text-sm font-medium text-[#1A1A18]">
                           {review.hospitals?.name}
@@ -426,8 +417,8 @@ export function AdminDashboard() {
                           review.status === "approved"
                             ? "bg-[#E1F5EE] text-[#0F6E56]"
                             : review.status === "hidden"
-                            ? "bg-[#FCEBEB] text-[#A32D2D]"
-                            : "bg-[#FAEEDA] text-[#BA7517]"
+                              ? "bg-[#FCEBEB] text-[#A32D2D]"
+                              : "bg-[#FAEEDA] text-[#BA7517]"
                         }`}
                       >
                         {review.status}
@@ -440,7 +431,7 @@ export function AdminDashboard() {
                       </p>
                     )}
 
-                    <div className="flex gap-2 pt-3 border-t border-gray-50">
+                    <div className="flex flex-col sm:flex-row gap-2 pt-3 border-t border-gray-50">
                       <button
                         onClick={() =>
                           moderateMutation.mutate({
@@ -478,13 +469,12 @@ export function AdminDashboard() {
                 Invite admin
               </h1>
               <p className="text-sm text-[#888780] mb-6">
-                Invite a new admin by email. They'll receive a link to set
-                their password.
+                Invite a new admin by email. They'll receive a link to set their
+                password.
               </p>
               <InviteAdmin />
             </div>
           )}
-
         </div>
       </div>
     </div>
@@ -547,7 +537,9 @@ function StatCard({
       >
         {value}
       </p>
-      <p className={`text-xs mt-1 ${highlight ? "text-[#BA7517]" : "text-[#888780]"}`}>
+      <p
+        className={`text-xs mt-1 ${highlight ? "text-[#BA7517]" : "text-[#888780]"}`}
+      >
         {delta}
       </p>
     </div>
