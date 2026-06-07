@@ -1,6 +1,5 @@
 import { supabase } from "./supabase";
 
-// ---- Types ----
 
 export type Hospital = {
   id: string;
@@ -22,6 +21,7 @@ export type Hospital = {
   updated_at: string;
   latitude: number | null;
   longitude: number | null;
+  image_url: string | null
 };
 
 export type Review = {
@@ -34,7 +34,6 @@ export type Review = {
   created_at: string;
 };
 
-// ---- Public hospital functions ----
 
 export async function fetchHospitals({
   city,
@@ -54,26 +53,21 @@ export async function fetchHospitals({
     .select("*")
     .eq("is_published", true);
 
-  // Filter by city
   if (city) {
     query = query.ilike("city", `%${city}%`);
   }
 
-  // Filter by specialty
   if (specialty) {
     query = query.contains("specialties", [specialty]);
   }
 
-  // Filter by ownership type
   if (ownership === "public" || ownership === "private") {
     query = query.eq("ownership_type", ownership);
   }
 
-  // Sort results
   if (sortBy === "rating") {
     query = query.order("avg_rating", { ascending: false });
   } else {
-    // Default — sort alphabetically by name
     query = query.order("name", { ascending: true });
   }
 
@@ -97,7 +91,6 @@ export async function fetchHospitalById(id: string) {
   return data as Hospital;
 }
 
-// ---- Admin hospital functions ----
 
 export async function fetchAllHospitalsAdmin() {
   const {
@@ -140,7 +133,6 @@ export async function deleteHospital(id: string) {
   if (error) throw error;
 }
 
-// ---- Review functions ----
 
 export async function fetchHospitalReviews(hospitalId: string) {
   const { data, error } = await supabase
@@ -238,4 +230,26 @@ export async function fetchHospitalsByRadius({
 
   if (error) throw error
   return data as Hospital[]
+}
+
+
+export async function uploadHospitalImage(file: File): Promise<string> {
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+  const filePath = `hospitals/${fileName}`
+
+  const { error } = await supabase.storage
+    .from('hospital-images')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+    })
+
+  if (error) throw error
+
+  const { data } = supabase.storage
+    .from('hospital-images')
+    .getPublicUrl(filePath)
+
+  return data.publicUrl
 }

@@ -6,7 +6,7 @@ import type { Review } from "../lib/hospitals";
 import ExportModal from "../Components/ExportModal";
 import StarRating from "../Components/StarRating";
 import WriteReview from "../Components/WriteReview";
-import {marked} from "marked";
+import { marked } from "marked";
 import DOMPurify from "dompurify";
 
 function HospitalDetail() {
@@ -69,9 +69,17 @@ function HospitalDetail() {
         </button>
       </div>
 
-      {/* Hero */}
-      <div className="bg-gradient-to-r from-[#0F6E56] to-[#1D9E75] px-6 py-8 relative">
-        <div>
+      <div className="relative">
+        {hospital.image_url ? (
+          <img
+            src={hospital.image_url}
+            alt={hospital.name}
+            className="w-full h-48 object-cover"
+          />
+        ) : (
+          <div className="bg-gradient-to-r from-[#0F6E56] to-[#1D9E75] h-48" />
+        )}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-6 py-5">
           <h1 className="text-xl font-semibold text-white">{hospital.name}</h1>
           <p className="text-white/75 text-sm mt-1">📍 {hospital.address}</p>
         </div>
