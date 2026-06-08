@@ -1,51 +1,3 @@
-// import {useRef, useEffect} from "react";
-// import mapboxgl from "mapbox-gl";
-// import type { Hospital } from "../lib/hospitals";
-
-// mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
-
-// type MapViewProps = {
-//   hospitals: Hospital[];
-//   selectedId: string | null;
-//   onSelectedHospital: (id: string) => void
-// };
-
-// function MapView({hospitals, selectedId, onSelectedHospital}: MapViewProps) {
-//     const mapContainer = useRef<HTMLDivElement>(null);
-//     const map = useRef<mapboxgl.Map | null>(null);
-//     const markers = useRef<{[id: string]: mapboxgl.Marker}>({});
-
-//     useEffect(() => {
-//         if(!mapContainer.current || map.current ) return;
-
-//         map.current = new mapboxgl.Map({
-//             container: mapContainer.current,
-//             style: 'mapbox://styles/mapbox/streets-v11',
-//             center: [3.3792, 6.5244],
-//             zoom: 11
-//         })
-
-//         map.current.addControl(() => {
-//             if(!map.current) return
-
-//             Object.values(markers.current).forEach(marker => marker.remove())
-//             markers.current = {}
-
-//             const hospitlsWithCoords = hospitals.filter(
-//                 h => h.latitude  && h.longitude
-//             )
-
-//             if(hospitalsWithCoords.length > 0) {
-//                 const bounds = new mapboxgl.LngLatBounds()
-//                 hospitlsWithCoords.forEach(h => {
-//                     bounds.extend([h.longitude!, h.latitude!])
-//                 })
-//                 map.current.fitBounds(bounds, { padding: 60, maxZoom: 14 })
-//             }
-//         })
-//     })
-// }
-
 import { useRef, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
 import type { Hospital } from "../lib/hospitals";
@@ -59,7 +11,6 @@ type MapViewProps = {
 };
 
 function MapView({ hospitals, selectedId, onSelectHospital }: MapViewProps) {
-  // useRef holds the DOM element Mapbox renders into
   const mapContainer = useRef<HTMLDivElement>(null);
 
   const map = useRef<mapboxgl.Map | null>(null);
