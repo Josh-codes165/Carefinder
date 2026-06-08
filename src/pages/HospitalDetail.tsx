@@ -9,6 +9,16 @@ import WriteReview from "../Components/WriteReview";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import ShareModal from "../Components/ShareModal";
+import {
+  ArrowLeft,
+  Phone,
+  Mail,
+  MapPin,
+  Building2,
+  Share2,
+  Download,
+  Pencil,
+} from "lucide-react";
 
 function HospitalDetail() {
   const { id } = useParams();
@@ -56,43 +66,58 @@ function HospitalDetail() {
       </div>
     );
   }
+
   return (
     <div className="min-h-screen bg-[#F6F5F0]">
-      <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center gap-4">
+
+      {/* Top nav */}
+      <div className="bg-white border-b border-gray-100 px-4 lg:px-6 py-3 flex items-center gap-4">
         <span className="text-[#0F6E56] font-semibold text-base">
           Carefinder
         </span>
         <button
           onClick={() => navigate(-1)}
-          className="text-sm text-[#5F5E5A] flex items-center gap-1 hover:text-[#0F6E56] transition-colors"
+          className="text-sm text-[#5F5E5A] flex items-center gap-1.5 hover:text-[#0F6E56] transition-colors"
         >
-          ← Back to results
+          <ArrowLeft size={14} />
+          <span className="hidden sm:inline">Back to results</span>
         </button>
       </div>
 
+      {/* Hero */}
       <div className="relative">
         {hospital.image_url ? (
           <img
             src={hospital.image_url}
             alt={hospital.name}
-            className="w-full h-48 object-cover"
+            className="w-full h-48 lg:h-64 object-cover"
           />
         ) : (
-          <div className="bg-gradient-to-r from-[#0F6E56] to-[#1D9E75] h-48" />
+          <div className="bg-gradient-to-r from-[#0F6E56] to-[#1D9E75] h-48 lg:h-64" />
         )}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-6 py-5">
-          <h1 className="text-xl font-semibold text-white">{hospital.name}</h1>
-          <p className="text-white/75 text-sm mt-1">📍 {hospital.address}</p>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-4 lg:px-6 py-5">
+          <h1 className="text-lg lg:text-xl font-semibold text-white">
+            {hospital.name}
+          </h1>
+          <p className="text-white/75 text-sm mt-1 flex items-center gap-1.5">
+            <MapPin size={12} />
+            {hospital.address}
+          </p>
         </div>
-        <span className="absolute top-4 right-6 text-xs px-3 py-1 rounded-full bg-white/20 text-white border border-white/30">
+        <span className="absolute top-4 right-4 lg:right-6 text-xs px-3 py-1 rounded-full bg-white/20 text-white border border-white/30">
           {hospital.ownership_type === "public"
             ? "Public hospital"
             : "Private hospital"}
         </span>
       </div>
 
+      {/* Body */}
       <div className="flex flex-col lg:flex-row gap-0 max-w-6xl mx-auto">
-        <div className="flex-1 p-6 border-r border-gray-100">
+
+        {/* Left column */}
+        <div className="flex-1 p-4 lg:p-6 border-r border-gray-100 min-w-0">
+
+          {/* Specialties */}
           <section className="mb-6">
             <h2 className="text-sm font-medium text-[#1A1A18] mb-3">
               Specialties
@@ -112,20 +137,24 @@ function HospitalDetail() {
             </div>
           </section>
 
+          {/* About */}
           {hospital.description && (
             <section className="mb-6">
-              <h2 className="text-sm font-medium text-[#1A1A18] mb-3">About</h2>
+              <h2 className="text-sm font-medium text-[#1A1A18] mb-3">
+                About
+              </h2>
               <div
                 className="text-sm text-[#5F5E5A] leading-relaxed prose max-w-none"
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(
-                    marked(hospital.description) as string,
+                    marked(hospital.description) as string
                   ),
                 }}
               />
             </section>
           )}
 
+          {/* Visiting hours */}
           {hospital.visiting_hours && (
             <section className="mb-6">
               <h2 className="text-sm font-medium text-[#1A1A18] mb-3">
@@ -136,7 +165,7 @@ function HospitalDetail() {
                   className="text-sm text-[#5F5E5A] leading-relaxed prose max-w-none"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
-                      marked(hospital.visiting_hours) as string,
+                      marked(hospital.visiting_hours) as string
                     ),
                   }}
                 />
@@ -144,6 +173,7 @@ function HospitalDetail() {
             </section>
           )}
 
+          {/* Ratings & reviews */}
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-medium text-[#1A1A18]">
@@ -152,29 +182,27 @@ function HospitalDetail() {
               {!showReviewForm && (
                 <button
                   onClick={() => setShowReviewForm(true)}
-                  className="text-sm text-[#0F6E56] font-medium border border-[#5DCAA5] px-4 py-1.5 rounded-lg hover:bg-[#E1F5EE] transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-[#0F6E56] font-medium border border-[#5DCAA5] px-4 py-1.5 rounded-lg hover:bg-[#E1F5EE] transition-colors"
                 >
-                  ✏️ Write a review
+                  <Pencil size={13} />
+                  Write a review
                 </button>
               )}
             </div>
 
+            {/* Rating summary */}
             <div className="flex items-center gap-4 bg-[#F1EFE8] rounded-xl p-4 mb-5">
-              <div className="text-center">
+              <div className="text-center flex-shrink-0">
                 <p className="text-4xl font-semibold text-[#1A1A18]">
                   {hospital.avg_rating.toFixed(1)}
                 </p>
-                <StarRating
-                  rating={Math.round(hospital.avg_rating)}
-                  size="sm"
-                />
+                <StarRating rating={Math.round(hospital.avg_rating)} size="sm" />
                 <p className="text-xs text-[#888780] mt-1">
                   {hospital.review_count} review
                   {hospital.review_count !== 1 ? "s" : ""}
                 </p>
               </div>
-
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 {[5, 4, 3, 2, 1].map((star) => {
                   const count =
                     reviews?.filter((r) => r.rating === star).length ?? 0;
@@ -195,6 +223,7 @@ function HospitalDetail() {
               </div>
             </div>
 
+            {/* Write review form */}
             {showReviewForm && (
               <div className="mb-5">
                 <WriteReview
@@ -204,6 +233,7 @@ function HospitalDetail() {
               </div>
             )}
 
+            {/* Reviews list */}
             {reviews && reviews.length > 0 ? (
               <div className="flex flex-col gap-3">
                 {reviews.map((review: Review) => (
@@ -227,7 +257,7 @@ function HospitalDetail() {
                                 day: "numeric",
                                 month: "short",
                                 year: "numeric",
-                              },
+                              }
                             )}
                           </p>
                         </div>
@@ -253,7 +283,8 @@ function HospitalDetail() {
           </section>
         </div>
 
-        <div className="w-full lg:w-64 p-6 bg-white">
+        {/* Right sidebar */}
+        <div className="w-full lg:w-64 p-4 lg:p-6 bg-white border-t lg:border-t-0">
           <h2 className="text-sm font-medium text-[#1A1A18] mb-4">
             Contact & location
           </h2>
@@ -261,8 +292,8 @@ function HospitalDetail() {
           <div className="flex flex-col gap-4">
             {hospital.phone && (
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#F1EFE8] flex items-center justify-center flex-shrink-0 text-sm">
-                  📞
+                <div className="w-8 h-8 rounded-lg bg-[#F1EFE8] flex items-center justify-center flex-shrink-0">
+                  <Phone size={15} className="text-[#0F6E56]" />
                 </div>
                 <div>
                   <p className="text-xs text-[#888780] font-medium uppercase tracking-wide">
@@ -275,8 +306,8 @@ function HospitalDetail() {
 
             {hospital.email && (
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#F1EFE8] flex items-center justify-center flex-shrink-0 text-sm">
-                  ✉️
+                <div className="w-8 h-8 rounded-lg bg-[#F1EFE8] flex items-center justify-center flex-shrink-0">
+                  <Mail size={15} className="text-[#0F6E56]" />
                 </div>
                 <div>
                   <p className="text-xs text-[#888780] font-medium uppercase tracking-wide">
@@ -284,7 +315,7 @@ function HospitalDetail() {
                   </p>
                   <a
                     href={`mailto:${hospital.email}`}
-                    className="text-sm text-[#0F6E56]"
+                    className="text-sm text-[#0F6E56] break-all"
                   >
                     {hospital.email}
                   </a>
@@ -293,8 +324,8 @@ function HospitalDetail() {
             )}
 
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#F1EFE8] flex items-center justify-center flex-shrink-0 text-sm">
-                📍
+              <div className="w-8 h-8 rounded-lg bg-[#F1EFE8] flex items-center justify-center flex-shrink-0">
+                <MapPin size={15} className="text-[#0F6E56]" />
               </div>
               <div>
                 <p className="text-xs text-[#888780] font-medium uppercase tracking-wide">
@@ -305,8 +336,8 @@ function HospitalDetail() {
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#F1EFE8] flex items-center justify-center flex-shrink-0 text-sm">
-                🏛️
+              <div className="w-8 h-8 rounded-lg bg-[#F1EFE8] flex items-center justify-center flex-shrink-0">
+                <Building2 size={15} className="text-[#0F6E56]" />
               </div>
               <div>
                 <p className="text-xs text-[#888780] font-medium uppercase tracking-wide">
@@ -321,14 +352,16 @@ function HospitalDetail() {
 
           <button
             onClick={() => setShowShareModal(true)}
-            className="w-full bg-[#0F6E56] text-white text-sm font-medium py-2.5 rounded-lg hover:bg-[#085041] transition-colors mb-2"
+            className="w-full flex items-center justify-center gap-2 bg-[#0F6E56] text-white text-sm font-medium py-2.5 rounded-lg hover:bg-[#085041] transition-colors mb-2"
           >
+            <Share2 size={14} />
             Share this hospital
           </button>
           <button
             onClick={() => setShowExportModal(true)}
-            className="w-full border border-gray-200 text-[#1A1A18] text-sm font-medium py-2.5 rounded-lg hover:border-[#5DCAA5] transition-colors"
+            className="w-full flex items-center justify-center gap-2 border border-gray-200 text-[#1A1A18] text-sm font-medium py-2.5 rounded-lg hover:border-[#5DCAA5] transition-colors"
           >
+            <Download size={14} />
             Export to CSV
           </button>
         </div>

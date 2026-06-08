@@ -9,6 +9,7 @@ import {
   uploadHospitalImage,
 } from "../lib/hospitals";
 import type { Hospital } from "../lib/hospitals";
+import { Camera, X, AlertTriangle } from "lucide-react";
 
 const hospitalSchema = z.object({
   name: z.string().min(1, "Hospital name is required"),
@@ -21,7 +22,11 @@ const hospitalSchema = z.object({
     .regex(/^\+?[\d\s\-()]{7,}$/, "Invalid phone number format")
     .optional()
     .or(z.literal("")),
-  email: z.string().email("Invalid email address").optional().or(z.literal("")),
+  email: z
+    .string()
+    .email("Invalid email address")
+    .optional()
+    .or(z.literal("")),
   description: z.string().optional(),
   visiting_hours: z.string().optional(),
   ownership_type: z.enum(["public", "private"]),
@@ -43,14 +48,8 @@ const hospitalSchema = z.object({
 type HospitalFormData = z.infer<typeof hospitalSchema>;
 
 const SPECIALTIES = [
-  "Emergency",
-  "Maternity",
-  "Pediatric",
-  "Dental",
-  "Cardiology",
-  "Orthopedic",
-  "Oncology",
-  "Ophthalmology",
+  "Emergency", "Maternity", "Pediatric", "Dental",
+  "Cardiology", "Orthopedic", "Oncology", "Ophthalmology",
 ];
 
 type HospitalFormProps = {
@@ -63,7 +62,7 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(
-    hospital?.image_url ?? null,
+    hospital?.image_url ?? null
   );
   const [isUploading, setIsUploading] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -88,9 +87,7 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
       description: hospital?.description ?? "",
       visiting_hours: hospital?.visiting_hours ?? "",
       ownership_type: hospital?.ownership_type ?? "public",
-      specialties: Array.isArray(hospital?.specialties)
-        ? hospital.specialties
-        : [],
+      specialties: Array.isArray(hospital?.specialties) ? hospital.specialties : [],
       latitude: hospital?.latitude ?? null,
       longitude: hospital?.longitude ?? null,
     },
@@ -102,10 +99,7 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
   function toggleSpecialty(specialty: string) {
     const current = watchedSpecialties ?? [];
     if (current.includes(specialty)) {
-      setValue(
-        "specialties",
-        current.filter((s) => s !== specialty),
-      );
+      setValue("specialties", current.filter((s) => s !== specialty));
     } else {
       setValue("specialties", [...current, specialty]);
     }
@@ -114,17 +108,14 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");
       return;
     }
-
     if (file.size > 5 * 1024 * 1024) {
       alert("Image must be less than 5MB");
       return;
     }
-
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
   }
@@ -133,13 +124,11 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
     try {
       setSubmitError("");
       let imageUrl = hospital?.image_url ?? null;
-
       if (imageFile) {
         setIsUploading(true);
         imageUrl = await uploadHospitalImage(imageFile);
         setIsUploading(false);
       }
-
       const hospitalData = {
         ...data,
         phone: data.phone || null,
@@ -149,13 +138,11 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
         image_url: imageUrl,
         is_published: publish,
       };
-
       if (isEditing && hospital) {
         await updateHospital(hospital.id, hospitalData);
       } else {
         await createHospital(hospitalData);
       }
-
       onSuccess();
     } catch (err) {
       console.error("Form submit error:", err);
@@ -166,9 +153,11 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="bg-white border border-gray-100 rounded-xl p-6">
+
+      <div className="bg-white border border-gray-100 rounded-xl p-4 lg:p-6">
         {submitError && (
-          <div className="bg-[#FCEBEB] border border-red-200 rounded-lg px-4 py-3 text-sm text-[#A32D2D] mb-4">
+          <div className="bg-[#FCEBEB] border border-red-200 rounded-lg px-4 py-3 text-sm text-[#A32D2D] mb-4 flex items-center gap-2">
+            <AlertTriangle size={14} />
             {submitError}
           </div>
         )}
@@ -183,34 +172,18 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
 
         <div className="grid grid-cols-2 gap-3">
           <FormField label="City" required error={errors.city?.message}>
-            <input
-              {...register("city")}
-              placeholder="Lagos"
-              className={inputClass(!!errors.city)}
-            />
+            <input {...register("city")} placeholder="Lagos" className={inputClass(!!errors.city)} />
           </FormField>
           <FormField label="LGA" required error={errors.lga?.message}>
-            <input
-              {...register("lga")}
-              placeholder="Lagos Island"
-              className={inputClass(!!errors.lga)}
-            />
+            <input {...register("lga")} placeholder="Lagos Island" className={inputClass(!!errors.lga)} />
           </FormField>
         </div>
 
         <FormField label="State" required error={errors.state?.message}>
-          <input
-            {...register("state")}
-            placeholder="Lagos"
-            className={inputClass(!!errors.state)}
-          />
+          <input {...register("state")} placeholder="Lagos" className={inputClass(!!errors.state)} />
         </FormField>
 
-        <FormField
-          label="Full address"
-          required
-          error={errors.address?.message}
-        >
+        <FormField label="Full address" required error={errors.address?.message}>
           <input
             {...register("address")}
             placeholder="Broad St, Lagos Island, Lagos State"
@@ -220,18 +193,10 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
 
         <div className="grid grid-cols-2 gap-3">
           <FormField label="Phone number" error={errors.phone?.message}>
-            <input
-              {...register("phone")}
-              placeholder="+234 1 000 0000"
-              className={inputClass(!!errors.phone)}
-            />
+            <input {...register("phone")} placeholder="+234 1 000 0000" className={inputClass(!!errors.phone)} />
           </FormField>
           <FormField label="Email" error={errors.email?.message}>
-            <input
-              {...register("email")}
-              placeholder="info@hospital.ng"
-              className={inputClass(!!errors.email)}
-            />
+            <input {...register("email")} placeholder="info@hospital.ng" className={inputClass(!!errors.email)} />
           </FormField>
         </div>
 
@@ -296,20 +261,15 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
       </div>
 
       <div className="flex flex-col gap-4">
-        {/* Description and visiting hours */}
-        <div className="bg-white border border-gray-100 rounded-xl p-6">
+
+        <div className="bg-white border border-gray-100 rounded-xl p-4 lg:p-6">
           <FormField label="About / Description">
             <Controller
               name="description"
               control={control}
               render={({ field }) => (
                 <div data-color-mode="light">
-                  <MDEditor
-                    value={field.value ?? ""}
-                    onChange={field.onChange}
-                    height={180}
-                    preview="edit"
-                  />
+                  <MDEditor value={field.value ?? ""} onChange={field.onChange} height={180} preview="edit" />
                 </div>
               )}
             />
@@ -321,19 +281,14 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
               control={control}
               render={({ field }) => (
                 <div data-color-mode="light">
-                  <MDEditor
-                    value={field.value ?? ""}
-                    onChange={field.onChange}
-                    height={140}
-                    preview="edit"
-                  />
+                  <MDEditor value={field.value ?? ""} onChange={field.onChange} height={140} preview="edit" />
                 </div>
               )}
             />
           </FormField>
         </div>
 
-        <div className="bg-white border border-gray-100 rounded-xl p-6">
+        <div className="bg-white border border-gray-100 rounded-xl p-4 lg:p-6">
           <FormField label="Hospital photo">
             <div className="space-y-3">
               {imagePreview && (
@@ -349,35 +304,24 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
                       setImageFile(null);
                       setImagePreview(null);
                     }}
-                    className="absolute top-2 right-2 w-7 h-7 bg-[#FCEBEB] text-[#A32D2D] rounded-full flex items-center justify-center text-xs hover:bg-red-100 transition-colors"
+                    className="absolute top-2 right-2 w-7 h-7 bg-[#FCEBEB] text-[#A32D2D] rounded-full flex items-center justify-center hover:bg-red-100 transition-colors"
                   >
-                    ✕
+                    <X size={12} />
                   </button>
                 </div>
               )}
 
               {!imagePreview && (
                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-[#5DCAA5] hover:bg-[#F1EFE8] transition-colors">
-                  <span className="text-2xl mb-2">📷</span>
-                  <span className="text-sm text-[#5F5E5A]">
-                    Click to upload a photo
-                  </span>
-                  <span className="text-xs text-[#888780] mt-1">
-                    JPG, PNG, WebP · max 5MB
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
+                  <Camera size={24} className="text-[#888780] mb-2" />
+                  <span className="text-sm text-[#5F5E5A]">Click to upload a photo</span>
+                  <span className="text-xs text-[#888780] mt-1">JPG, PNG, WebP · max 5MB</span>
+                  <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                 </label>
               )}
 
               {isUploading && (
-                <p className="text-xs text-[#0F6E56] text-center">
-                  Uploading image...
-                </p>
+                <p className="text-xs text-[#0F6E56] text-center">Uploading image...</p>
               )}
             </div>
           </FormField>
@@ -398,13 +342,10 @@ export function HospitalForm({ hospital, onSuccess }: HospitalFormProps) {
             disabled={isSubmitting || isUploading}
             className="flex-1 bg-[#0F6E56] text-white text-sm font-medium py-2.5 rounded-lg hover:bg-[#085041] transition-colors disabled:opacity-40"
           >
-            {isSubmitting || isUploading
-              ? "Saving..."
-              : isEditing
-                ? "Update & publish"
-                : "Publish"}
+            {isSubmitting || isUploading ? "Saving..." : isEditing ? "Update & publish" : "Publish"}
           </button>
         </div>
+
       </div>
     </div>
   );
@@ -432,15 +373,13 @@ function FormField({
   return (
     <div className="mb-4">
       <label className="flex items-center gap-1.5 text-xs font-medium text-[#5F5E5A] uppercase tracking-wide mb-2">
-        {required && (
-          <span className="w-1.5 h-1.5 rounded-full bg-[#A32D2D] flex-shrink-0" />
-        )}
+        {required && <span className="w-1.5 h-1.5 rounded-full bg-[#A32D2D] flex-shrink-0" />}
         {label}
       </label>
       {children}
       {error && (
         <p className="text-xs text-[#A32D2D] mt-1 flex items-center gap-1">
-          <span>⚠</span> {error}
+          <AlertTriangle size={11} /> {error}
         </p>
       )}
     </div>

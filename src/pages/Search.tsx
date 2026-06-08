@@ -7,6 +7,15 @@ import ExportModal from "../Components/ExportModal";
 import ShareModal from "../Components/ShareModal";
 import { useAuth } from "../Context/AuthContext";
 import MapView from "../Components/MapView";
+import {
+  Link2,
+  Download,
+  MapPin,
+  List,
+  Map,
+  X,
+  LogOut,
+} from "lucide-react";
 
 function Search() {
   const [showShareModal, setShowShareModal] = useState(false);
@@ -82,10 +91,8 @@ function Search() {
       setLocationError("Geolocation is not supported by your browser");
       return;
     }
-
     setIsLocating(true);
     setLocationError("");
-
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setUserLocation({
@@ -107,19 +114,18 @@ function Search() {
   return (
     <div className="h-screen flex flex-col bg-[#F6F5F0]">
 
+      {/* Top bar */}
       <div className="bg-white border-b border-gray-100 px-4 lg:px-6 py-3 flex items-center gap-2 lg:gap-4 flex-shrink-0">
-        <a
-          href="/"
-          className="text-[#0F6E56] font-semibold text-base flex-shrink-0"
-        >
+        <a href="/" className="text-[#0F6E56] font-semibold text-base flex-shrink-0">
           Carefinder
         </a>
         <div className="flex-1 bg-[#F1EFE8] rounded-lg px-3 lg:px-4 py-2 text-sm text-[#1A1A18] truncate">
           {userLocation
-            ? `📍 Within ${radius} km of your location`
+            ? `Within ${radius} km of your location`
             : city || "All hospitals"}
         </div>
 
+        {/* Auth */}
         {user ? (
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="hidden lg:block text-sm text-[#5F5E5A]">
@@ -127,9 +133,10 @@ function Search() {
             </span>
             <button
               onClick={signOut}
-              className="text-sm text-[#888780] hover:text-[#A32D2D] transition-colors"
+              className="flex items-center gap-1.5 text-sm text-[#888780] hover:text-[#A32D2D] transition-colors"
             >
-              Sign out
+              <LogOut size={14} />
+              <span className="hidden sm:inline">Sign out</span>
             </button>
           </div>
         ) : (
@@ -141,26 +148,29 @@ function Search() {
           </a>
         )}
 
+        {/* Share and Export */}
         {hospitals && hospitals.length > 0 && (
           <>
             <button
               onClick={() => setShowShareModal(true)}
-              className="flex-shrink-0 flex items-center gap-1 text-sm font-medium text-[#0F6E56] border border-[#5DCAA5] px-3 py-2 rounded-lg hover:bg-[#E1F5EE] transition-colors"
+              className="flex-shrink-0 flex items-center gap-1.5 text-sm font-medium text-[#0F6E56] border border-[#5DCAA5] px-3 py-2 rounded-lg hover:bg-[#E1F5EE] transition-colors"
             >
-              🔗<span className="hidden lg:block ml-1">Share</span>
+              <Link2 size={14} />
+              <span className="hidden lg:block">Share</span>
             </button>
             <button
               onClick={() => setShowExportModal(true)}
-              className="flex-shrink-0 flex items-center gap-1 text-sm font-medium text-[#0F6E56] border border-[#5DCAA5] px-3 py-2 rounded-lg hover:bg-[#E1F5EE] transition-colors"
+              className="flex-shrink-0 flex items-center gap-1.5 text-sm font-medium text-[#0F6E56] border border-[#5DCAA5] px-3 py-2 rounded-lg hover:bg-[#E1F5EE] transition-colors"
             >
-              📥<span className="hidden lg:block ml-1">Export CSV</span>
+              <Download size={14} />
+              <span className="hidden lg:block">Export CSV</span>
             </button>
           </>
         )}
       </div>
 
+      {/* Filter chips */}
       <div className="bg-white border-b border-gray-100 px-4 lg:px-6 py-2 flex gap-2 flex-wrap flex-shrink-0 items-center">
-
         {["Maternity", "Emergency", "Pediatric", "Dental"].map((s) => (
           <button
             key={s}
@@ -223,29 +233,32 @@ function Search() {
                 setUserLocation(null);
                 setLocationError("");
               }}
-              className="text-xs px-3 py-2 rounded-full bg-[#FCEBEB] text-[#A32D2D] border border-red-200"
+              className="flex items-center gap-1 text-xs px-3 py-2 rounded-full bg-[#FCEBEB] text-[#A32D2D] border border-red-200"
             >
-              ✕ Clear location
+              <X size={11} />
+              Clear location
             </button>
           </div>
         ) : (
           <button
             onClick={handleGetLocation}
             disabled={isLocating}
-            className="text-xs px-4 py-2 rounded-full border border-transparent bg-[#F1EFE8] text-[#5F5E5A] hover:bg-[#E1F5EE] hover:text-[#0F6E56] transition-colors disabled:opacity-50 flex items-center gap-1"
+            className="flex items-center gap-1.5 text-xs px-4 py-2 rounded-full border border-transparent bg-[#F1EFE8] text-[#5F5E5A] hover:bg-[#E1F5EE] hover:text-[#0F6E56] transition-colors disabled:opacity-50"
           >
-            {isLocating ? "📍 Locating..." : "📍 Near me"}
+            <MapPin size={12} />
+            {isLocating ? "Locating..." : "Near me"}
           </button>
         )}
 
         {locationError && (
           <p className="text-xs text-[#A32D2D]">{locationError}</p>
         )}
-
       </div>
 
+      {/* Main content */}
       <div className="flex flex-1 overflow-hidden relative">
 
+        {/* List panel */}
         <div
           className={`${
             showMap ? "hidden" : "flex"
@@ -256,37 +269,27 @@ function Search() {
               <p className="text-[#5F5E5A] text-sm">Loading hospitals...</p>
             </div>
           )}
-
           {error && (
             <div className="m-4 bg-[#FCEBEB] border border-red-200 rounded-lg p-4 text-[#A32D2D] text-sm">
               Something went wrong. Please try again.
             </div>
           )}
-
           {hospitals && (
             <>
               <div className="px-4 py-3 border-b border-gray-100 bg-white sticky top-0 z-10">
                 <p className="text-xs text-[#888780] font-medium uppercase tracking-wide">
                   {hospitals.length} hospital{hospitals.length !== 1 ? "s" : ""} found
-                  {userLocation
-                    ? ` within ${radius} km`
-                    : city
-                    ? ` in ${city}`
-                    : ""}
+                  {userLocation ? ` within ${radius} km` : city ? ` in ${city}` : ""}
                 </p>
               </div>
-
               {hospitals.length === 0 && (
                 <div className="text-center py-20 px-4">
-                  <p className="text-[#5F5E5A] text-base">
-                    No hospitals found.
-                  </p>
+                  <p className="text-[#5F5E5A] text-base">No hospitals found.</p>
                   <p className="text-[#888780] text-sm mt-1">
                     Try a different city, increase the radius, or remove filters.
                   </p>
                 </div>
               )}
-
               <div className="flex flex-col pb-24 lg:pb-0">
                 {hospitals.map((hospital) => (
                   <HospitalCard
@@ -302,18 +305,15 @@ function Search() {
           )}
         </div>
 
-        <div
-          className={`${showMap ? "flex" : "hidden"} lg:flex flex-1 relative`}
-        >
+        {/* Map panel */}
+        <div className={`${showMap ? "flex" : "hidden"} lg:flex flex-1 relative`}>
           {hospitals && hospitals.length > 0 ? (
             <MapView
               hospitals={hospitals}
               selectedId={selectedId}
               onSelectHospital={(id) => {
                 setSelectedId(id);
-                if (window.innerWidth < 1024) {
-                  setShowMap(false);
-                }
+                if (window.innerWidth < 1024) setShowMap(false);
               }}
             />
           ) : (
@@ -324,16 +324,24 @@ function Search() {
             </div>
           )}
         </div>
-
       </div>
 
+      {/* Mobile toggle */}
       {hospitals && hospitals.length > 0 && (
         <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
           <button
             onClick={() => setShowMap(!showMap)}
             className="flex items-center gap-2 bg-[#0F6E56] text-white text-sm font-medium px-6 py-3 rounded-full shadow-lg hover:bg-[#085041] transition-all active:scale-95"
           >
-            {showMap ? "📋 Show list" : "🗺️ Show map"}
+            {showMap ? (
+              <>
+                <List size={15} /> Show list
+              </>
+            ) : (
+              <>
+                <Map size={15} /> Show map
+              </>
+            )}
           </button>
         </div>
       )}
@@ -351,7 +359,6 @@ function Search() {
           onClose={() => setShowShareModal(false)}
         />
       )}
-
     </div>
   );
 }
@@ -390,30 +397,23 @@ function HospitalCard({
           {hospital.ownership_type}
         </span>
       </div>
-
       <p className="text-xs text-[#888780] mb-3">{hospital.address}</p>
-
       <div className="flex items-center gap-2 flex-wrap">
         {(Array.isArray(hospital.specialties)
           ? hospital.specialties
           : (hospital.specialties as string).split(",")
-        )
-          .slice(0, 3)
-          .map((s) => (
-            <span
-              key={s}
-              className="text-xs px-3 py-1 rounded-full bg-[#E1F5EE] text-[#0F6E56]"
-            >
-              {s.trim()}
-            </span>
-          ))}
-
+        ).slice(0, 3).map((s) => (
+          <span
+            key={s}
+            className="text-xs px-3 py-1 rounded-full bg-[#E1F5EE] text-[#0F6E56]"
+          >
+            {s.trim()}
+          </span>
+        ))}
         {hospital.avg_rating > 0 && (
           <span className="ml-auto text-xs text-[#5F5E5A]">
             ★ {hospital.avg_rating.toFixed(1)}
-            <span className="text-[#888780] ml-1">
-              ({hospital.review_count})
-            </span>
+            <span className="text-[#888780] ml-1">({hospital.review_count})</span>
           </span>
         )}
       </div>

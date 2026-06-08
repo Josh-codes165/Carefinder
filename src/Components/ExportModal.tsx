@@ -2,6 +2,7 @@ import { useState } from "react";
 import { EXPORT_COLUMNS, exportHospitalToCSV } from "../lib/export";
 import type { ExportColumnKey } from "../lib/export";
 import type { Hospital } from "../lib/hospitals";
+import { Download, X, Check } from "lucide-react";
 
 type ExportModalProps = {
   hospitals: Hospital[];
@@ -19,19 +20,14 @@ function ExportModal({ hospitals, searchQuery, onClose }: ExportModalProps) {
   ]);
 
   function toggleColumn(key: ExportColumnKey) {
-    setSelectedColumns(
-      (prev) =>
-        prev.includes(key)
-          ? prev.filter((k) => k !== key) 
-          : [...prev, key], 
+    setSelectedColumns((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
   }
 
   function handleExport() {
     if (selectedColumns.length === 0) return;
-
     exportHospitalToCSV(hospitals, selectedColumns, searchQuery);
-
     onClose();
   }
 
@@ -51,7 +47,7 @@ function ExportModal({ hospitals, searchQuery, onClose }: ExportModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-          <span className="text-lg">📥</span>
+          <Download size={18} className="text-[#0F6E56]" />
           <h2 className="text-base font-semibold text-[#1A1A18]">
             Export to CSV
           </h2>
@@ -59,7 +55,7 @@ function ExportModal({ hospitals, searchQuery, onClose }: ExportModalProps) {
             onClick={onClose}
             className="ml-auto w-7 h-7 rounded-lg bg-[#F1EFE8] flex items-center justify-center text-[#5F5E5A] hover:bg-gray-200 transition-colors"
           >
-            ✕
+            <X size={14} />
           </button>
         </div>
 
@@ -71,7 +67,6 @@ function ExportModal({ hospitals, searchQuery, onClose }: ExportModalProps) {
           <div className="flex flex-col gap-1 mb-5">
             {EXPORT_COLUMNS.map((column) => {
               const isChecked = selectedColumns.includes(column.key);
-
               return (
                 <div
                   key={column.key}
@@ -85,11 +80,9 @@ function ExportModal({ hospitals, searchQuery, onClose }: ExportModalProps) {
                         : "border-gray-300"
                     }`}
                   >
-                    {isChecked && <span className="text-white text-xs">✓</span>}
+                    {isChecked && <Check size={10} className="text-white" />}
                   </div>
-
                   <span className="text-sm text-[#1A1A18]">{column.label}</span>
-
                   {column.key === "name" && (
                     <span className="ml-auto text-xs text-[#888780]">
                       Required
@@ -99,10 +92,11 @@ function ExportModal({ hospitals, searchQuery, onClose }: ExportModalProps) {
               );
             })}
           </div>
+
           <p className="text-xs font-medium text-[#888780] uppercase tracking-wide mb-2">
             Output filename
           </p>
-          <div className="bg-[#F1EFE8] rounded-lg px-3 py-2.5 font-mono text-xs text-[#5F5E5A] mb-4">
+          <div className="bg-[#F1EFE8] rounded-lg px-3 py-2.5 font-mono text-xs text-[#5F5E5A] mb-4 break-all">
             {previewFilename}
           </div>
 
@@ -122,8 +116,9 @@ function ExportModal({ hospitals, searchQuery, onClose }: ExportModalProps) {
           <button
             onClick={handleExport}
             disabled={selectedColumns.length === 0}
-            className="flex-1 bg-[#0F6E56] text-white text-sm font-medium py-2.5 rounded-lg hover:bg-[#085041] transition-colors disabled:opacity-40"
+            className="flex-1 flex items-center justify-center gap-2 bg-[#0F6E56] text-white text-sm font-medium py-2.5 rounded-lg hover:bg-[#085041] transition-colors disabled:opacity-40"
           >
+            <Download size={14} />
             Download CSV
           </button>
         </div>

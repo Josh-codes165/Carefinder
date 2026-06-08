@@ -12,6 +12,20 @@ import type { Hospital } from "../lib/hospitals";
 import { HospitalForm } from "../Components/HospitalForm";
 import { supabase } from "../lib/supabase";
 import InviteAdmin from "../Components/InviteAdmin";
+import {
+  LayoutDashboard,
+  Building2,
+  Plus,
+  MessageSquare,
+  Mail,
+  Globe,
+  LogOut,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  ArrowLeft,
+} from "lucide-react";
 
 type ActiveSection = "overview" | "hospitals" | "reviews" | "create" | "invite";
 
@@ -21,6 +35,7 @@ export function AdminDashboard() {
   const queryClient = useQueryClient();
   const [activeSection, setActiveSection] = useState<ActiveSection>("overview");
   const [editingHospital, setEditingHospital] = useState<Hospital | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: hospitals, isLoading: hospitalsLoading } = useQuery({
     queryKey: ["admin-hospitals"],
@@ -36,8 +51,7 @@ export function AdminDashboard() {
           refresh_token: session.refresh_token,
         });
       }
-      const result = await fetchAllReviewsAdmin();
-      return result;
+      return await fetchAllReviewsAdmin();
     },
     enabled: !!session && !!user,
   });
@@ -75,36 +89,63 @@ export function AdminDashboard() {
   const pendingReviews =
     reviews?.filter((r: any) => r.status === "pending").length ?? 0;
 
+  function handleNavClick(section: ActiveSection) {
+    setActiveSection(section);
+    setSidebarOpen(false);
+  }
+
   return (
     <div className="min-h-screen bg-[#F6F5F0] flex flex-col">
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-3 flex flex-wrap items-center gap-3">
+      <div className="bg-white border-b border-gray-100 px-4 lg:px-6 py-3 flex items-center gap-3">
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg bg-[#F1EFE8] text-[#5F5E5A]"
+        >
+          <LayoutDashboard size={16} />
+        </button>
         <span className="text-[#0F6E56] font-semibold text-base">
           Carefinder
         </span>
         <span className="text-xs font-medium px-3 py-1 rounded-full bg-[#FAEEDA] text-[#BA7517] border border-[#FAC775]">
           ADMIN
         </span>
-        <div className="ml-auto flex-wrap items-center gap-3">
-          <span className="text-xs sm:text-sm text-[#5F5E5A] break-all">
+        <div className="ml-auto flex items-center gap-3">
+          <span className="hidden sm:block text-sm text-[#5F5E5A] truncate max-w-[160px]">
             {user?.user_metadata?.full_name || user?.email}
           </span>
           <button
             onClick={() => navigate("/")}
-            className="text-sm text-[#5F5E5A] hover:text-[#0F6E56] transition-colors"
+            className="flex items-center gap-1.5 text-sm text-[#5F5E5A] hover:text-[#0F6E56] transition-colors"
           >
-            Public site
+            <Globe size={14} />
+            <span className="hidden sm:inline">Public site</span>
           </button>
           <button
             onClick={signOut}
-            className="text-sm text-[#888780] hover:text-[#A32D2D] transition-colors"
+            className="flex items-center gap-1.5 text-sm text-[#888780] hover:text-[#A32D2D] transition-colors"
           >
-            Sign out
+            <LogOut size={14} />
+            <span className="hidden sm:inline">Sign out</span>
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row flex-1">
-        <div className="w-full lg:w-52 bg-[#FAEEDA] border-b lg:border-b-0 lg:border-r border-gray-100 flex-shrink-0 py-4 overflow-x-auto">
+      <div className="flex flex-1 relative">
+        {sidebarOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black/30 z-20"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        <div
+          className={`
+          fixed lg:relative top-0 left-0 h-full z-30 lg:z-auto
+          w-52 bg-[#FAEEDA] border-r border-gray-100 flex-shrink-0 py-4
+          transform transition-transform duration-200
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}
+        >
           <div className="px-4 mb-2">
             <p className="text-xs font-medium text-[#888780] uppercase tracking-wider">
               Overview
@@ -112,9 +153,9 @@ export function AdminDashboard() {
           </div>
           <NavItem
             label="Dashboard"
-            icon="📊"
+            icon={<LayoutDashboard size={15} />}
             active={activeSection === "overview"}
-            onClick={() => setActiveSection("overview")}
+            onClick={() => handleNavClick("overview")}
           />
 
           <div className="px-4 mt-4 mb-2">
@@ -124,17 +165,17 @@ export function AdminDashboard() {
           </div>
           <NavItem
             label="All hospitals"
-            icon="🏥"
+            icon={<Building2 size={15} />}
             active={activeSection === "hospitals"}
-            onClick={() => setActiveSection("hospitals")}
+            onClick={() => handleNavClick("hospitals")}
           />
           <NavItem
             label="Add hospital"
-            icon="➕"
+            icon={<Plus size={15} />}
             active={activeSection === "create"}
             onClick={() => {
               setEditingHospital(null);
-              setActiveSection("create");
+              handleNavClick("create");
             }}
           />
 
@@ -145,9 +186,9 @@ export function AdminDashboard() {
           </div>
           <NavItem
             label="Reviews"
-            icon="💬"
+            icon={<MessageSquare size={15} />}
             active={activeSection === "reviews"}
-            onClick={() => setActiveSection("reviews")}
+            onClick={() => handleNavClick("reviews")}
             badge={pendingReviews > 0 ? pendingReviews : undefined}
           />
 
@@ -158,13 +199,13 @@ export function AdminDashboard() {
           </div>
           <NavItem
             label="Invite admin"
-            icon="✉️"
+            icon={<Mail size={15} />}
             active={activeSection === "invite"}
-            onClick={() => setActiveSection("invite")}
+            onClick={() => handleNavClick("invite")}
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-6 min-w-0">
           {activeSection === "overview" && (
             <div>
               <h1 className="text-xl font-semibold text-[#1A1A18] mb-1">
@@ -174,7 +215,7 @@ export function AdminDashboard() {
                 Welcome back, {user?.user_metadata?.full_name?.split(" ")[0]}
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
                 <StatCard
                   label="Total hospitals"
                   value={hospitals?.length ?? 0}
@@ -204,27 +245,27 @@ export function AdminDashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex gap-3">
                 <button
                   onClick={() => setActiveSection("create")}
-                  className="bg-[#0F6E56] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#085041] transition-colors"
+                  className="flex items-center justify-center gap-2 bg-[#0F6E56] text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-[#085041] transition-colors"
                 >
-                  ➕ Add hospital
+                  <Plus size={14} /> Add hospital
                 </button>
                 <button
                   onClick={() => setActiveSection("reviews")}
-                  className="border border-gray-200 text-[#1A1A18] text-sm font-medium px-5 py-2.5 rounded-lg hover:border-[#5DCAA5] transition-colors"
+                  className="flex items-center justify-center gap-2 border border-gray-200 text-[#1A1A18] text-sm font-medium px-5 py-2.5 rounded-lg hover:border-[#5DCAA5] transition-colors"
                 >
-                  💬 Moderate reviews
+                  <MessageSquare size={14} /> Moderate reviews
                 </button>
                 <button
                   onClick={() => setActiveSection("hospitals")}
-                  className="border border-gray-200 text-[#1A1A18] text-sm font-medium px-5 py-2.5 rounded-lg hover:border-[#5DCAA5] transition-colors"
+                  className="flex items-center justify-center gap-2 border border-gray-200 text-[#1A1A18] text-sm font-medium px-5 py-2.5 rounded-lg hover:border-[#5DCAA5] transition-colors"
                 >
-                  🏥 Manage hospitals
+                  <Building2 size={14} /> Manage hospitals
                 </button>
                 <button
                   onClick={() => setActiveSection("invite")}
-                  className="border border-gray-200 text-[#1A1A18] text-sm font-medium px-5 py-2.5 rounded-lg hover:border-[#5DCAA5] transition-colors"
+                  className="flex items-center justify-center gap-2 border border-gray-200 text-[#1A1A18] text-sm font-medium px-5 py-2.5 rounded-lg hover:border-[#5DCAA5] transition-colors"
                 >
-                  ✉️ Invite admin
+                  <Mail size={14} /> Invite admin
                 </button>
               </div>
             </div>
@@ -241,9 +282,9 @@ export function AdminDashboard() {
                     setEditingHospital(null);
                     setActiveSection("create");
                   }}
-                  className="w-full sm:w-auto bg-[#0F6E56] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#085041] transition-colors"
+                  className="flex items-center justify-center gap-2 w-full sm:w-auto bg-[#0F6E56] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#085041] transition-colors"
                 >
-                  ➕ Add hospital
+                  <Plus size={14} /> Add hospital
                 </button>
               </div>
 
@@ -253,24 +294,23 @@ export function AdminDashboard() {
 
               {hospitals && (
                 <div className="bg-white border border-gray-100 rounded-xl overflow-x-auto">
-                  <table className="min-w-[700px] w-full text-sm">
+                  <table className="min-w-[600px] w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-100">
-                        <th className="text-left px-4 py-3 text-xs font-medium text-[#888780] uppercase tracking-wide">
-                          Name
-                        </th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-[#888780] uppercase tracking-wide">
-                          City / LGA
-                        </th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-[#888780] uppercase tracking-wide">
-                          Type
-                        </th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-[#888780] uppercase tracking-wide">
-                          Status
-                        </th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-[#888780] uppercase tracking-wide">
-                          Actions
-                        </th>
+                        {[
+                          "Name",
+                          "City / LGA",
+                          "Type",
+                          "Status",
+                          "Actions",
+                        ].map((h) => (
+                          <th
+                            key={h}
+                            className="text-left px-4 py-3 text-xs font-medium text-[#888780] uppercase tracking-wide"
+                          >
+                            {h}
+                          </th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody>
@@ -317,7 +357,7 @@ export function AdminDashboard() {
                                 className="w-8 h-8 rounded-lg bg-[#E1F5EE] text-[#0F6E56] flex items-center justify-center hover:bg-[#5DCAA5]/20 transition-colors"
                                 title="Edit"
                               >
-                                ✏️
+                                <Pencil size={13} />
                               </button>
                               <button
                                 onClick={() =>
@@ -329,7 +369,7 @@ export function AdminDashboard() {
                                 className="w-8 h-8 rounded-lg bg-[#FCEBEB] text-[#A32D2D] flex items-center justify-center hover:bg-red-100 transition-colors"
                                 title="Delete"
                               >
-                                🗑️
+                                <Trash2 size={13} />
                               </button>
                             </div>
                           </td>
@@ -347,9 +387,9 @@ export function AdminDashboard() {
               <div className="flex items-center gap-3 mb-6">
                 <button
                   onClick={() => setActiveSection("hospitals")}
-                  className="text-sm text-[#5F5E5A] hover:text-[#0F6E56] transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-[#5F5E5A] hover:text-[#0F6E56] transition-colors"
                 >
-                  ← Back
+                  <ArrowLeft size={14} /> Back
                 </button>
                 <h1 className="text-xl font-semibold text-[#1A1A18]">
                   {editingHospital ? "Edit hospital" : "Add new hospital"}
@@ -367,6 +407,7 @@ export function AdminDashboard() {
             </div>
           )}
 
+          {/* REVIEWS */}
           {activeSection === "reviews" && (
             <div>
               <h1 className="text-xl font-semibold text-[#1A1A18] mb-6">
@@ -387,9 +428,9 @@ export function AdminDashboard() {
                 {reviews?.map((review: any) => (
                   <div
                     key={review.id}
-                    className="bg-white border border-gray-100 rounded-xl p-5"
+                    className="bg-white border border-gray-100 rounded-xl p-4 lg:p-5"
                   >
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                       <div>
                         <p className="text-sm font-medium text-[#1A1A18]">
                           {review.hospitals?.name}
@@ -413,7 +454,7 @@ export function AdminDashboard() {
                         ))}
                       </div>
                       <span
-                        className={`text-xs px-2.5 py-1 rounded-full ${
+                        className={`text-xs px-2.5 py-1 rounded-full self-start ${
                           review.status === "approved"
                             ? "bg-[#E1F5EE] text-[#0F6E56]"
                             : review.status === "hidden"
@@ -431,7 +472,7 @@ export function AdminDashboard() {
                       </p>
                     )}
 
-                    <div className="flex flex-col sm:flex-row gap-2 pt-3 border-t border-gray-50">
+                    <div className="flex gap-2 pt-3 border-t border-gray-50">
                       <button
                         onClick={() =>
                           moderateMutation.mutate({
@@ -440,9 +481,9 @@ export function AdminDashboard() {
                           })
                         }
                         disabled={review.status === "approved"}
-                        className="flex-1 bg-[#E1F5EE] text-[#0F6E56] text-sm font-medium py-2 rounded-lg hover:bg-[#5DCAA5]/20 transition-colors disabled:opacity-40"
+                        className="flex-1 flex items-center justify-center gap-1.5 bg-[#E1F5EE] text-[#0F6E56] text-sm font-medium py-2 rounded-lg hover:bg-[#5DCAA5]/20 transition-colors disabled:opacity-40"
                       >
-                        ✓ Approve
+                        <Check size={13} /> Approve
                       </button>
                       <button
                         onClick={() =>
@@ -452,9 +493,9 @@ export function AdminDashboard() {
                           })
                         }
                         disabled={review.status === "hidden"}
-                        className="flex-1 bg-[#FCEBEB] text-[#A32D2D] text-sm font-medium py-2 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-40"
+                        className="flex-1 flex items-center justify-center gap-1.5 bg-[#FCEBEB] text-[#A32D2D] text-sm font-medium py-2 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-40"
                       >
-                        ✕ Hide
+                        <X size={13} /> Hide
                       </button>
                     </div>
                   </div>
@@ -489,7 +530,7 @@ function NavItem({
   badge,
 }: {
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   active: boolean;
   onClick: () => void;
   badge?: number;
@@ -503,7 +544,7 @@ function NavItem({
           : "text-[#5F5E5A] hover:bg-[#BA7517]/5"
       }`}
     >
-      <span>{icon}</span>
+      <span className="flex-shrink-0">{icon}</span>
       <span className="flex-1 text-left">{label}</span>
       {badge !== undefined && (
         <span className="text-xs bg-[#BA7517] text-white px-2 py-0.5 rounded-full">
@@ -531,9 +572,7 @@ function StatCard({
         {label}
       </p>
       <p
-        className={`text-3xl font-semibold ${
-          highlight ? "text-[#BA7517]" : "text-[#1A1A18]"
-        }`}
+        className={`text-3xl font-semibold ${highlight ? "text-[#BA7517]" : "text-[#1A1A18]"}`}
       >
         {value}
       </p>
