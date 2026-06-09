@@ -63,13 +63,14 @@ function Login() {
       setIsLoading(false);
       return;
     }
+    if (data.session) {
+      navigate("/search");
+      return;
+    }
 
     setSuccessMessage(
-      " Account created successfully! Please check your email to confirm your account.",
+      "Account created! Please check your email to verify your account before logging in.",
     );
-    setEmail("");
-    setPassword("");
-    setFullName("");
     setIsLoading(false);
   }
 

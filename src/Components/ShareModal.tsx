@@ -109,7 +109,6 @@ function ShareModal({ hospitals, onClose }: ShareModalProps) {
           </button>
         </div>
 
-        {/* Tabs */}
         <div className="flex border-b border-gray-100">
           <button
             onClick={() => setActiveTab("link")}
