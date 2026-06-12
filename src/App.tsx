@@ -6,6 +6,7 @@ import HospitalDetail from "./pages/HospitalDetail"
 import Login from "./pages/login"
 import AdminDashboard from "./pages/Dashboard"
 import ProtectedRoute from "./Components/ProtectedRoute"
+import ErrorBoundary from "./Components/ErrorBoundary"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,18 +22,23 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/hospital/:id" element={<HospitalDetail />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute requireAdmin>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/" element={
+            <ErrorBoundary><Home /></ErrorBoundary>
+          } />
+          <Route path="/search" element={
+            <ErrorBoundary><Search /></ErrorBoundary>
+          } />
+          <Route path="/hospital/:id" element={
+            <ErrorBoundary><HospitalDetail /></ErrorBoundary>
+          } />
+          <Route path="/login" element={
+            <ErrorBoundary><Login /></ErrorBoundary>
+          } />
+          <Route path="/admin" element={
+            <ProtectedRoute requireAdmin>
+              <ErrorBoundary><AdminDashboard /></ErrorBoundary>
+            </ProtectedRoute>
+          } />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
@@ -40,4 +46,3 @@ function App() {
 }
 
 export default App
-
